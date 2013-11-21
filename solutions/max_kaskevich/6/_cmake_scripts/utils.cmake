@@ -104,6 +104,10 @@ macro( compile_tests )
 		add_definitions( -DBOOST_TEST_DYN_LINK -DBOOST_TEST_NO_LIB )
 	endif( NOT BOOST_STATIC )
 
+
+	add_definitions( -DTEST_DATA_DIR="${PROJECT_SOURCE_DIR}/tests/data" )
+
+
 	if (${RUN_PERFORMANCE_TESTS})
 		add_definitions( -DRUN_PERFORMANCE_TESTS )
 	endif(${RUN_PERFORMANCE_TESTS})
