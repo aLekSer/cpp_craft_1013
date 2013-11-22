@@ -1,16 +1,18 @@
 #include "quote_message.h"
 #include <math.h>
 
-const std::map< const char, uint32_t > multicast_communication::quote_message::denominator_map
+using namespace std;
+
+const std::map< const char, double > multicast_communication::quote_message::denominator_map
     = boost::assign::map_list_of
      // FRACTIONAL
-    ('3' , 8) ('4' , 16) ('5' , 32) ('6' , 64) ('7' , 128) ('8' , 256)
+    ('3' , 8.0) ('4' , 16.0) ('5' , 32.0) ('6' , 64.0) ('7' , 128.0) ('8' , 256.0)
      // DECIMAL
-    ('A' , 10) ('B' , pow( 10, 2 ) ) ('C' , pow( 10, 3 ) ) ('D' , pow( 10, 4 ) )
-    ('E' , pow( 10, 5) ) ('F' , pow( 10, 6 ) ) ('G' , pow( 10, 7 ) )
-    ('H' , pow( 10, 8) )
+    ('A' , 10.0) ('B' , pow( 10.0, 2 ) ) ('C' , pow( 10.0, 3 ) ) ('D' , pow( 10.0, 4 ) )
+    ('E' , ( 10.0, 5) ) ('F' , pow( 10.0, 6 ) ) ('G' , pow( 10.0, 7 ) )
+    ('H' , pow( 10.0, 8) )
 
-    ('I' , 1)
+    ('I' , 1.0)
     ;
 
 std::string multicast_communication::quote_message::security_symbol() const

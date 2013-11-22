@@ -26,7 +26,7 @@ namespace multicast_communication
 
 	public:
 
-        static const std::map< const char, uint32_t > denominator_map;
+        static const std::map< const char, double > denominator_map;
 
         enum quote_type
         {
