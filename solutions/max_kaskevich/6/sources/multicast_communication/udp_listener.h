@@ -7,6 +7,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <functional>
 
 namespace multicast_communication
 {
@@ -21,16 +22,18 @@ namespace multicast_communication
 
 		std::string multicast_address_;
 
-        char buffer_[ max_buffer_size ];
-
+        typedef char buffer_type[ max_buffer_size ];
+        buffer_type buffer_;
+        typedef std::function< void ( std::string& ) > callback_type;
+        callback_type callback_;
 
 		mutable boost::mutex protect_messages_;
 		std::vector< std::string > messages_;
 
 	public:
-		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port );
+		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address,
+            unsigned short port, callback_type callback);
 		~udp_listener();
-		const std::vector< std::string > messages() const;
 	private:
 		void socket_reload_();
 		void register_listen_();

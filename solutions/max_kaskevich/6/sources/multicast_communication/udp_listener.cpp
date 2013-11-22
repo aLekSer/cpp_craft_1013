@@ -2,19 +2,22 @@
 
 #include <boost/bind.hpp>
 
-multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port )
+multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io_service,
+                                                     const std::string& multicast_address, unsigned short port,
+                                                     callback_type callback)
 	: io_service_( io_service )
 	, listen_endpoint_( boost::asio::ip::address::from_string( "0.0.0.0" ), port )
 	, socket_( io_service_ )
 	, multicast_address_( multicast_address )
+    , callback_( callback )
 {
 	socket_reload_();
 	register_listen_();
 }
+
 multicast_communication::udp_listener::~udp_listener()
 {
 }
-
 
 void multicast_communication::udp_listener::socket_reload_()
 {
@@ -48,8 +51,8 @@ void multicast_communication::udp_listener::listen_handler_( const boost::system
 	else
 	{
 		{
-			boost::mutex::scoped_lock lock( protect_messages_ );
-			messages_.push_back( std::string( buffer_, bytes_received ) );
+            boost::mutex::scoped_lock lock( protect_messages_ );
+            callback_( std::string( buffer_, bytes_received ) );
 		}
 		register_listen_();
 	}

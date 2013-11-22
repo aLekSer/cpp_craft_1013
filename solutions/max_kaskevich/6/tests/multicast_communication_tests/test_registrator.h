@@ -8,5 +8,6 @@ namespace multicast_communication
 		void trade_message_tests();
 
 		void market_data_processor_tests();
+        void udp_listener_tests();
 	}
 }
