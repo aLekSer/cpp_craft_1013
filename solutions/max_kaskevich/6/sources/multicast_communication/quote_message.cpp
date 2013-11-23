@@ -125,3 +125,13 @@ void multicast_communication::quote_message::read_long( std::istream& input )
     input.ignore( 11 ); // unnecessary data
 }
 
+std::ostream& multicast_communication::operator<<( std::ostream& output, quote_message& msg )
+{
+    output  << std::fixed << "Q " << msg.security_symbol() << " "
+        << std::setprecision( 2 )  << msg.bid_price() << " "
+        << std::setprecision( 1 ) << msg.bid_volume() << " "
+        << std::setprecision( 2 ) << msg.offer_price() << " "
+        << std::setprecision( 1 ) << msg.offer_volume() << std::endl;
+    return output;
+}
+

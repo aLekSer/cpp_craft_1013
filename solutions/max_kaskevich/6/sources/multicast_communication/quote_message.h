@@ -78,7 +78,8 @@ namespace multicast_communication
 	typedef boost::shared_ptr< quote_message > quote_message_ptr;
 
     std::istream& operator>>( std::istream& input, quote_message::header_type& header );
-    std::istream& operator>>( std::istream& input, quote_message& msg_ptr );
+    std::istream& operator>>( std::istream& input, quote_message& msg );
+    std::ostream& operator<<( std::ostream& output, quote_message& msg );
 
 }
 

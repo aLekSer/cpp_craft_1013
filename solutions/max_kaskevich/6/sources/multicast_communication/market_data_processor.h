@@ -1,8 +1,8 @@
 #ifndef _MULTICAST_COMMUNICATION_MARKET_DATA_PROCESSOR_H_
 #define _MULTICAST_COMMUNICATION_MARKET_DATA_PROCESSOR_H_
 
-#include <trade_message.h>
-#include <quote_message.h>
+#include "trade_message.h"
+#include "quote_message.h"
 
 namespace multicast_communication
 {

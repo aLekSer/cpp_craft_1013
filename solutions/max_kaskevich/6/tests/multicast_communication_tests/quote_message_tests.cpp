@@ -52,4 +52,15 @@ void multicast_communication::tests_::quote_message_tests()
         BOOST_CHECK_EQUAL( fabs( qm.offer_volume() -  1.0) < eps, true);
     }
 
+    { // test write message
+        std::istringstream input("EDEO A  003759032T:J_073ADMR  B00004147006 B00004148004 12");
+
+        quote_message qm;
+        BOOST_CHECK_NO_THROW( input >> qm; )
+
+        std::ostringstream output;
+        output << qm ;
+        BOOST_CHECK_EQUAL( output.str() , "Q ADM 41.47 6.0 41.48 4.0\n" );
+    }
+
 }
