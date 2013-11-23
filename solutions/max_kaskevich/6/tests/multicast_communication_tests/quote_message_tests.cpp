@@ -45,7 +45,7 @@ void multicast_communication::tests_::quote_message_tests()
             input >> qm; 
         )
 
-        BOOST_CHECK_EQUAL( qm.security_symbol(), std::string("AVB        ") );
+        BOOST_CHECK_EQUAL( qm.security_symbol(), "AVB" );
         BOOST_CHECK_EQUAL( fabs( qm.bid_price() -  121.29) < eps, true);
         BOOST_CHECK_EQUAL( fabs( qm.bid_volume() -  1.0) < eps, true);
         BOOST_CHECK_EQUAL( fabs( qm.offer_price() -  121.58) < eps, true);

@@ -1,5 +1,6 @@
 #include "quote_message.h"
 #include <math.h>
+#include <boost/algorithm/string.hpp>
 
 using namespace std;
 
@@ -92,6 +93,7 @@ std::string read_alphabetic( std::istream& input )
 void multicast_communication::quote_message::read_short( std::istream& input )
 {
     security_symbol_ = read_alphabetic< 3 >( input );
+    boost::trim( security_symbol_ );
 
     input.ignore( 3 ); // unnecessary data
 
@@ -111,6 +113,7 @@ void multicast_communication::quote_message::read_short( std::istream& input )
 void multicast_communication::quote_message::read_long( std::istream& input )
 {
     security_symbol_ = read_alphabetic< 11 >( input );
+    boost::trim( security_symbol_ );
 
     input.ignore( 16 ); // unnecessary data
 
