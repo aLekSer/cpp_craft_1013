@@ -20,51 +20,51 @@ multicast_communication::market_data_receiver::market_data_receiver( const size_
     {
         throw std::logic_error( "too little threads for quote ports" );
     }
+    start();
 }
 
 
 multicast_communication::market_data_receiver::~market_data_receiver(void)
 {
+    stop();
 }
 
 void multicast_communication::market_data_receiver::start()
 {
-    for( int i = 0; i < quote_thread_size_; ++i )
+    int j = 0;
+    for( int i = 0; i < quote_thread_size_; ++i, ++j )
     {
+        if ( j == quote_ports_.size() )
+        {
+            j = 0;
+        }
         quote_threads_.create_thread(
-            boost::bind( &multicast_communication::market_data_receiver::proc, this ) );
+            boost::bind( &multicast_communication::market_data_receiver::quote_proc, this,
+            quote_ports_[j].first, quote_ports_[j].second ) );
     }
 }
 
 void multicast_communication::market_data_receiver::quote_proc(const std::string& address,
                                                                unsigned short port)
 {
-    boost::asio::io_service service;
-    udp_listener listener(service, address, port, [this](const std::string& str)
+    udp_listener listener(service_, address, port, [&](const std::string& str)
     {
-        std::istringstream input( str );
-        quote_message_ptr msg;
-        if( input.get() != 0x1 )
+        quote_message_ptr_list msgs;
+        if ( quote_message::parse_block( str, msgs ) )
         {
-            std::cout << "bad block" << std::endl;
-            return;
+            std::cout << "bad block from " << address << ":" << port << std::endl;
         }
-
-        do 
+        for( auto msg: msgs)
         {
-            msg.reset( new quote_message() );
-            input >> *( msg );
             processor_.new_quote( msg );
-
-            // TODO?  skipping until 'US'
-
-        } while ( input && input.get() == 0x1F );
-
-        if( input.get() != 0x3 )
-        {
-            std::cout << "bad block" << std::endl;
-            return;
         }
     });
+    service_.run();
+}
 
+void multicast_communication::market_data_receiver::stop()
+{
+    service_.stop();
+    quote_threads_.join_all();
+    trade_threads_.join_all();
 }

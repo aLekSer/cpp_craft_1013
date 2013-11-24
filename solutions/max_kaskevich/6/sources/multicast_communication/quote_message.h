@@ -12,6 +12,9 @@ using namespace boost::multiprecision;
 
 namespace multicast_communication
 {
+    class quote_message;
+    typedef boost::shared_ptr< quote_message > quote_message_ptr;
+     typedef std::list< quote_message_ptr > quote_message_ptr_list;
 	class quote_message
 	{
     public:
@@ -73,9 +76,11 @@ namespace multicast_communication
 
         void read_short( std::istream& input );
         void read_long( std::istream& input );
+        
+        static bool parse_block(const std::string& block, quote_message_ptr_list& msgs);
 	};
 
-	typedef boost::shared_ptr< quote_message > quote_message_ptr;
+	
 
     std::istream& operator>>( std::istream& input, quote_message::header_type& header );
     std::istream& operator>>( std::istream& input, quote_message& msg );

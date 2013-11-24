@@ -5,6 +5,7 @@
 
 #include "market_data_processor.h"
 #include <boost/thread.hpp>
+#include <boost/asio.hpp>
 
 namespace multicast_communication
 {
@@ -20,6 +21,9 @@ namespace multicast_communication
         boost::thread_group trade_threads_;
         boost::thread_group quote_threads_;
 
+        boost::asio::io_service service_;
+
+
         void quote_proc( const std::string& address, unsigned short port );
         //void trade_proc( const std::string& address, unsigned short port );
 
@@ -29,6 +33,7 @@ namespace multicast_communication
 		virtual ~market_data_receiver();
 
         void start();
+        void stop();
 	};
 }
 

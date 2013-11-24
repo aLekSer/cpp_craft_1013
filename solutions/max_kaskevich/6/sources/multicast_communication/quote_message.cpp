@@ -138,3 +138,30 @@ std::ostream& multicast_communication::operator<<( std::ostream& output, quote_m
     return output;
 }
 
+bool multicast_communication::quote_message::parse_block(const std::string& block,
+                                                         quote_message_ptr_list& msgs)
+{
+    quote_message_ptr_list list;
+    std::istringstream input( block );
+    quote_message_ptr msg;
+    if( input.get() != 0x1 )
+    {
+        return false;
+    }
+
+    do 
+    {
+        msg.reset( new quote_message() );
+        input >> *( msg );
+        msgs.push_back( msg );
+
+        // TODO?  skipping until 'US'
+
+    } while ( input && input.get() == 0x1F );
+
+    if( input.get() != 0x3 )
+    {        
+        return false;
+    }
+    return true;
+}
