@@ -38,9 +38,21 @@ void multicast_communication::market_data_receiver::start()
         {
             j = 0;
         }
-        quote_threads_.create_thread(
+        threads_.create_thread(
             boost::bind( &multicast_communication::market_data_receiver::quote_proc, this,
             quote_ports_[j].first, quote_ports_[j].second ) );
+    }
+
+    j = 0;
+    for( int i = 0; i < trade_thread_size_; ++i, ++j )
+    {
+        if ( j == trade_ports_.size() )
+        {
+            j = 0;
+        }
+        threads_.create_thread(
+            boost::bind( &multicast_communication::market_data_receiver::trade_proc, this,
+            trade_ports_[j].first, trade_ports_[j].second ) );
     }
 }
 
@@ -62,9 +74,26 @@ void multicast_communication::market_data_receiver::quote_proc(const std::string
     service_.run();
 }
 
+void multicast_communication::market_data_receiver::trade_proc(const std::string& address,
+                                                               unsigned short port)
+{
+    udp_listener listener(service_, address, port, [&](const std::string& str)
+    {
+        trade_message_ptr_list msgs;
+        if ( trade_message::parse_block( str, msgs ) )
+        {
+            std::cout << "bad block from " << address << ":" << port << std::endl;
+        }
+        for( auto msg: msgs)
+        {
+            processor_.new_trade( msg );
+        }
+    });
+    service_.run();
+}
+
 void multicast_communication::market_data_receiver::stop()
 {
     service_.stop();
-    quote_threads_.join_all();
-    trade_threads_.join_all();
+    threads_.join_all();
 }
