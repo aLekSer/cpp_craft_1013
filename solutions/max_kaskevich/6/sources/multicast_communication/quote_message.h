@@ -3,18 +3,14 @@
 
 #include <boost/shared_ptr.hpp>
 #include <iostream>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <memory>
-#include <boost/lexical_cast.hpp>
-#include <boost/assign.hpp>
-
-using namespace boost::multiprecision;
+#include <list>
 
 namespace multicast_communication
 {
     class quote_message;
     typedef boost::shared_ptr< quote_message > quote_message_ptr;
-     typedef std::list< quote_message_ptr > quote_message_ptr_list;
+    typedef std::list< quote_message_ptr > quote_message_ptr_list;
+
 	class quote_message
 	{
     public:
@@ -27,29 +23,19 @@ namespace multicast_communication
         class header_type
         {
             quote_type type_;
+            friend std::istream& operator>>( std::istream& input, quote_message::header_type& header);
         public:
             static const size_t size = 24;
             header_type() :
                 type_(ANOTHER)
             {}
 
-            friend std::istream& operator>>( std::istream& input, quote_message::header_type& header);
 
             quote_type type()
             {
                 return type_;
             }
         };
-
-    private:
-        std::string security_symbol_;
-        double bid_price_;
-        double bid_volume_;
-        double offer_price_;
-        double offer_volume_;
-        header_type header;
-
-	public:
 
         quote_message() :
             security_symbol_(""),
@@ -67,17 +53,27 @@ namespace multicast_communication
 		double offer_price() const;
 		double offer_volume() const;
 
-        friend std::istream& operator>>( std::istream& input, quote_message& msg_ptr );
 
         quote_type type()
         {
-            header.type();
+            return header.type();
         }
+        
+        static bool parse_block(const std::string& block, quote_message_ptr_list& msgs);
+
+    private:
+        std::string security_symbol_;
+        double bid_price_;
+        double bid_volume_;
+        double offer_price_;
+        double offer_volume_;
+        header_type header;
 
         void read_short( std::istream& input );
         void read_long( std::istream& input );
-        
-        static bool parse_block(const std::string& block, quote_message_ptr_list& msgs);
+
+        friend std::istream& operator>>( std::istream& input, quote_message& msg_ptr );
+
 	};
 
 	

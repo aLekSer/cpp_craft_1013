@@ -1,6 +1,6 @@
 #pragma once 
-#ifndef _MULTICAST_DATA_RECEIVER_H_
-#define _MULTICAST_DATA_RECEIVER_H_
+#ifndef _MULTICAST_COMMUNICATION_DATA_RECEIVER_H_
+#define _MULTICAST_COMMUNICATION_DATA_RECEIVER_H_
 
 
 #include "market_data_processor.h"
@@ -37,4 +37,4 @@ namespace multicast_communication
 	};
 }
 
-#endif // _MULTICAST_DATA_RECEIVER_H_
+#endif // _MULTICAST_COMMUNICATION_DATA_RECEIVER_H_
