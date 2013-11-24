@@ -4,7 +4,7 @@ set( CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "Configurations"
 project( ${SOLUTION_NAME} )
 include( environment.cmake required )
 
-modules( multicast_communication )
+modules( multicast_communication thread_safe_queue )
 binaries( market_data_receiver )
 
 compile()

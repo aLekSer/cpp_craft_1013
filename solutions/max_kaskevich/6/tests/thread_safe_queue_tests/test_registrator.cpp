@@ -13,11 +13,9 @@
 
 	using namespace multicast_communication::tests_;
 
-	master_test_suite.add( BOOST_TEST_CASE( &quote_message_tests ) );
-	master_test_suite.add( BOOST_TEST_CASE( &trade_message_tests ) );
-    master_test_suite.add( BOOST_TEST_CASE( &udp_listener_tests ) );
-
-	master_test_suite.add( BOOST_TEST_CASE( &market_data_processor_tests ) );
+    master_test_suite.add( BOOST_TEST_CASE( &thread_safe_queue_tests ) );    
+    master_test_suite.add( BOOST_TEST_CASE( &thread_safe_queue_many_thread_tests ) );    
+    master_test_suite.add( BOOST_TEST_CASE( &thread_safe_queue_a_lot_of_thread_tests ) );        
 
 
 

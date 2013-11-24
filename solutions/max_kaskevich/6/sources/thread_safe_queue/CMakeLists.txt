@@ -6,4 +6,4 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 	chrono
 )
 
-compile_project( ${module_name} "*.cpp" "*.h" STATIC libraries Boost thread_safe_queue)
+compile_project( ${module_name} "*.cpp" "*.h" STATIC libraries Boost)
