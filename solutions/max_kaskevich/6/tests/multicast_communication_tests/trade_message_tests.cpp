@@ -1,8 +1,35 @@
 #include "test_registrator.h"
 
 #include <trade_message.h>
+#include <fstream>
 
 static const double eps = 0.0000001;
+
+namespace multicast_communication
+{
+    static size_t max_block_size = 1000u;
+    namespace trade_tests_
+    {
+
+        bool get_block( std::istream& input, std::string& block )
+        {
+            for ( size_t i = 0; i < max_block_size; ++i)
+            {
+                if ( !input )
+                {
+                    return false;
+                }
+
+                block.push_back( input.get() );
+                if( block.back() == 0x3 )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+}
 
 void multicast_communication::tests_::trade_message_tests()
 {
@@ -50,5 +77,17 @@ void multicast_communication::tests_::trade_message_tests()
         std::ostringstream output;
         BOOST_CHECK_NO_THROW( output << tm ; )
         BOOST_CHECK_EQUAL( output.str(), "T ACN 77.90 100.0\n" );
+    }
+
+    {
+        std::ifstream input( TEST_DATA_DIR "/233.200.79.128.udp" );
+        std::string block;
+        trade_message_ptr_list msgs;
+        while ( trade_tests_::get_block( input, block ) )
+        {
+            BOOST_CHECK_NO_THROW( trade_message::parse_block(block, msgs ); );
+        }
+        BOOST_CHECK_EQUAL( input.eof(), true );
+
     }
 }

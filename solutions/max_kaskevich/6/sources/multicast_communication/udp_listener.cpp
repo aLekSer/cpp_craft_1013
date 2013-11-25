@@ -9,6 +9,7 @@ multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io
 	, listen_endpoint_( boost::asio::ip::address::from_string( "0.0.0.0" ), port )
 	, socket_( io_service_ )
 	, multicast_address_( multicast_address )
+    , buffer_(new char[ max_buffer_size ])
     , callback_( callback )
 {
 	socket_reload_();
@@ -33,7 +34,7 @@ void multicast_communication::udp_listener::socket_reload_()
 void multicast_communication::udp_listener::register_listen_()
 {
 	using namespace boost::asio::placeholders;
-	socket_.async_receive( boost::asio::buffer( buffer_, max_buffer_size ), 
+	socket_.async_receive( boost::asio::buffer( buffer_.get(), max_buffer_size ), 
 		boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
 }
 
@@ -52,7 +53,7 @@ void multicast_communication::udp_listener::listen_handler_( const boost::system
 	{
 		{
             boost::mutex::scoped_lock lock( protect_messages_ );
-            callback_( std::string( buffer_, bytes_received ) );
+            callback_( std::string( buffer_.get(), bytes_received ) );
 		}
 		register_listen_();
 	}

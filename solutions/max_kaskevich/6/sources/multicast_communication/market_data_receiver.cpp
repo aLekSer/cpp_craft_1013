@@ -62,7 +62,7 @@ void multicast_communication::market_data_receiver::quote_proc(const std::string
     udp_listener listener(service_, address, port, [&](const std::string& str)
     {
         quote_message_ptr_list msgs;
-        if ( quote_message::parse_block( str, msgs ) )
+        if ( !quote_message::parse_block( str, msgs ) )
         {
             std::cout << "bad block from " << address << ":" << port << std::endl;
         }
@@ -80,7 +80,7 @@ void multicast_communication::market_data_receiver::trade_proc(const std::string
     udp_listener listener(service_, address, port, [&](const std::string& str)
     {
         trade_message_ptr_list msgs;
-        if ( trade_message::parse_block( str, msgs ) )
+        if ( !trade_message::parse_block( str, msgs ) )
         {
             std::cout << "bad block from " << address << ":" << port << std::endl;
         }

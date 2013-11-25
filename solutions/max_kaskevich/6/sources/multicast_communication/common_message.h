@@ -10,7 +10,6 @@
 namespace multicast_communication
 {
 
-
     static const std::map< const char, double > denominator_map = boost::assign::map_list_of
         // FRACTIONAL
         ( '3' , 8.0 ) ( '4' , 16.0 ) ( '5' , 32.0 ) ( '6' , 64.0 ) ( '7' , 128.0 ) ( '8' , 256.0 )
@@ -22,7 +21,7 @@ namespace multicast_communication
         ('I' , 1.0 )
         ;
 
-    template< size_t size >
+    template< size_t size > 
     double read_numeric( std::istream& input )
     {
         char buf[ size ];

@@ -8,6 +8,6 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 	regex
 )
 
-compile_project( ${tests_name} "*.cpp" "*.h" BINARY tests ${module_name} Boost )
-register_test( ${tests_name} 5 4 )
+compile_project( ${tests_name} "*.cpp" "*.h" BINARY tests ${module_name} Boost thread_safe_queue )
+register_test( ${tests_name} 125 124 )
 

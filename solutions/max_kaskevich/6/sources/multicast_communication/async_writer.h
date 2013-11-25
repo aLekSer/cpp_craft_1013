@@ -18,7 +18,7 @@ namespace multicast_communication
         explicit async_writer( std::ostream& output );
         ~async_writer(void);
 
-        void join();
+        void stop();
     private:
         void quote_proc();
         void trade_proc();

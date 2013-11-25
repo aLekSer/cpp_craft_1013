@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-
+#include <memory>
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
@@ -22,7 +22,7 @@ namespace multicast_communication
 
 		std::string multicast_address_;
 
-        typedef char buffer_type[ max_buffer_size ];
+        typedef std::unique_ptr< char[]> buffer_type;
         buffer_type buffer_;
         typedef std::function< void ( std::string& ) > callback_type;
         callback_type callback_;

@@ -135,7 +135,7 @@ bool multicast_communication::quote_message::parse_block(const std::string& bloc
     {
         return false;
     }
-
+    char c;
     do 
     {
         msg.reset( new quote_message() );
@@ -145,11 +145,12 @@ bool multicast_communication::quote_message::parse_block(const std::string& bloc
             msgs.push_back( msg );
         }
 
-        // TODO?  skipping until 'US'. yes but lazy :)
+        while (input >> c && c != 0x1F && c != 0x3 )
+        {}
 
-    } while ( input && input.get() == 0x1F );
+    } while ( input && c == 0x1F );
 
-    if( input.get() != 0x3 )
+    if( c != 0x3 )
     {        
         return false;
     }

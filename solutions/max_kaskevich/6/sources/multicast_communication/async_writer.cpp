@@ -12,7 +12,7 @@ multicast_communication::async_writer::async_writer( std::ostream& output ) :
 
 multicast_communication::async_writer::~async_writer(void)
 {
-    join();
+    stop();
 }
 
 void multicast_communication::async_writer::new_trade( const trade_message_ptr& msg )
@@ -45,8 +45,10 @@ void multicast_communication::async_writer::trade_proc()
     }
 }
 
-void multicast_communication::async_writer::join()
+void multicast_communication::async_writer::stop()
 {
+    quote_queue_.disable_wait();
+    trade_queue_.disable_wait();
     quote_thread_.join();
     trade_thread_.join();
 }

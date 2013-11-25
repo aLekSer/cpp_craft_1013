@@ -5,6 +5,31 @@
 
 static const double eps = 0.0000001;
 
+namespace multicast_communication
+{
+    static size_t max_block_size = 1000u;
+    namespace quote_tests_
+    {
+
+        bool get_block( std::istream& input, std::string& block )
+        {
+            for ( size_t i = 0; i < max_block_size; ++i)
+            {
+                if ( !input )
+                {
+                    return false;
+                }
+
+                block.push_back( input.get() );
+                if( block.back() == 0x3 )
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+}
 
 void multicast_communication::tests_::quote_message_tests()
 {
@@ -61,6 +86,18 @@ void multicast_communication::tests_::quote_message_tests()
         std::ostringstream output;
         BOOST_CHECK_NO_THROW( output << qm ; )
         BOOST_CHECK_EQUAL( output.str(), "Q ADM 41.47 6.0 41.48 4.0\n" );
+    }
+
+    {
+        std::ifstream input( TEST_DATA_DIR "/233.200.79.0.udp" );
+        std::string block;
+        quote_message_ptr_list msgs;
+        while ( quote_tests_::get_block( input, block ) )
+        {
+            BOOST_CHECK_NO_THROW( quote_message::parse_block(block, msgs ); );
+        }
+        BOOST_CHECK_EQUAL( input.eof(), true );
+
     }
 
 }

@@ -148,7 +148,7 @@ void multicast_communication::tests_::thread_safe_queue_tests()
             ++check;
         } );
         boost::this_thread::sleep_for( boost::chrono::microseconds( 100 ) );
-        tsq.stop_all_waits();
+        tsq.disable_wait();
         test_thread.join();
         BOOST_CHECK_EQUAL( check,  1 );
     }

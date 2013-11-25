@@ -27,6 +27,7 @@ namespace multicast_communication
         size_t size_;
         boost::mutex mtx_;
         boost::mutex wait_not_empty_;
+        bool disable_wait_;
 
 	public:
 		explicit thread_safe_queue();
@@ -35,7 +36,8 @@ namespace multicast_communication
 		void push( const T& new_element );
 		bool pop( T& result );
         bool wait_pop( T& result );
-        void stop_all_waits();
+        void enable_wait();
+        void disable_wait();
 
 		bool empty() const;
 		size_t size() const;
@@ -45,7 +47,8 @@ namespace multicast_communication
 	thread_safe_queue< T >::thread_safe_queue() :
         first_( nullptr ),
         last_( nullptr ),
-        size_( 0 )
+        size_( 0 ),
+        disable_wait_(false)
 	{
          wait_not_empty_.lock();
 	}
@@ -105,12 +108,19 @@ namespace multicast_communication
     bool thread_safe_queue< T >::wait_pop( T& elem )
     {
         wait_not_empty_.lock();
-        return pop( elem );
+        return !disable_wait_ && pop( elem );
     }
 
     template< typename T >
-    void thread_safe_queue< T >::stop_all_waits()
+    void thread_safe_queue< T >::enable_wait()
     {
+        disable_wait_ = false;
+    }
+
+    template< typename T >
+    void thread_safe_queue< T >::disable_wait()
+    {
+        disable_wait_ = true;
         wait_not_empty_.unlock();
     }
 
