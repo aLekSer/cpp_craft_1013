@@ -21,11 +21,12 @@ namespace multicast_communication
         market_data_processor& processor_;
 
         boost::thread_group threads_;
-        boost::asio::io_service service_;
+        typedef std::shared_ptr< boost::asio::io_service > service_ptr;
+         std::list< service_ptr > services_;
 
 
-        void quote_proc( const std::string& address, unsigned short port );
-        void trade_proc( const std::string& address, unsigned short port );
+        void quote_proc( service_ptr service, const std::string& address, unsigned short port );
+        void trade_proc( service_ptr service, const std::string& address, unsigned short port );
 
 	public:
 		explicit market_data_receiver( const size_t trade_thread_size, const size_t quote_thread_size,

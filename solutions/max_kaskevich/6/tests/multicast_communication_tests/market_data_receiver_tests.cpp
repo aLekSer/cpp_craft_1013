@@ -5,6 +5,7 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
+#include <clocale>
 
 namespace multicast_communication
 {
@@ -24,6 +25,17 @@ namespace multicast_communication
         void test_sender( const std::string address, unsigned short port, std::list< std::string >& msgs_ouput,
             std::function< void ( const std::string&, std::list< std::string >& ) > block_handler);
 
+        class market_data_processor_test_helper : public market_data_processor
+        {
+        public:
+            explicit market_data_processor_test_helper(){}
+            virtual ~market_data_processor_test_helper(){}
+        private:
+            virtual void new_trade( const trade_message_ptr& );
+            virtual void new_quote( const quote_message_ptr& );
+        };
+
+        boost::mutex mtx;
     }
 }
 
@@ -53,6 +65,7 @@ void multicast_communication::tests_::get_quote_msgs_ouput( const std::string& b
     {
         std::ostringstream output;
         output << *( msg );
+        boost::mutex::scoped_lock lock(mtx);
         msgs_ouput.push_back( output.str() );
     }
 }
@@ -64,6 +77,7 @@ void multicast_communication::tests_::get_trade_msgs_ouput( const std::string& b
     {
         std::ostringstream output;
         output << *( msg );
+        boost::mutex::scoped_lock lock(mtx);
         msgs_ouput.push_back( output.str() );
     }
 }
@@ -94,12 +108,15 @@ void multicast_communication::tests_::test_sender( const std::string address, un
     }
     
     BOOST_CHECK_EQUAL( input.eof(), true );
+    socket.close();
+    //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
     service.stop();
     receive_messages.join();
 }
 
 void multicast_communication::tests_::market_data_receiver_tests()
 {
+     std::setlocale( LC_ALL, "" );
 	//BOOST_CHECK_NO_THROW
 	//( 
         std::ostringstream output;
@@ -107,13 +124,13 @@ void multicast_communication::tests_::market_data_receiver_tests()
 
         market_data_receiver::ports quote_ports;
         quote_ports.push_back( std::make_pair( "233.200.79.0", 61000 ) );
-        //quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
         market_data_receiver::ports trade_ports;
         trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
-        market_data_receiver receiver( 2, 1, trade_ports, quote_ports, writer );
+        trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
+        market_data_receiver receiver( 4, 4, trade_ports, quote_ports, writer );
 
         boost::thread_group test_threads;
 

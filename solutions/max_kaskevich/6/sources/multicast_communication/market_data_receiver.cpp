@@ -38,9 +38,10 @@ void multicast_communication::market_data_receiver::start()
         {
             j = 0;
         }
+        services_.push_back( service_ptr( new boost::asio::io_service() ) );
         threads_.create_thread(
             boost::bind( &multicast_communication::market_data_receiver::quote_proc, this,
-            quote_ports_[j].first, quote_ports_[j].second ) );
+            services_.back(), quote_ports_[j].first, quote_ports_[j].second ) );
     }
 
     j = 0;
@@ -50,16 +51,17 @@ void multicast_communication::market_data_receiver::start()
         {
             j = 0;
         }
+        services_.push_back( service_ptr( new boost::asio::io_service() ) );
         threads_.create_thread(
             boost::bind( &multicast_communication::market_data_receiver::trade_proc, this,
-            trade_ports_[j].first, trade_ports_[j].second ) );
+            services_.back(), trade_ports_[j].first, trade_ports_[j].second ) );
     }
 }
 
-void multicast_communication::market_data_receiver::quote_proc(const std::string& address,
+void multicast_communication::market_data_receiver::quote_proc( service_ptr service, const std::string& address,
                                                                unsigned short port)
 {
-    udp_listener listener(service_, address, port, [&](const std::string& str)
+    udp_listener listener(*service, address, port, [&](const std::string& str)
     {
         quote_message_ptr_list msgs;
         if ( !quote_message::parse_block( str, msgs ) )
@@ -71,13 +73,13 @@ void multicast_communication::market_data_receiver::quote_proc(const std::string
             processor_.new_quote( msg );
         }
     });
-    service_.run();
+    service->run();
 }
 
-void multicast_communication::market_data_receiver::trade_proc(const std::string& address,
+void multicast_communication::market_data_receiver::trade_proc( service_ptr service, const std::string& address,
                                                                unsigned short port)
 {
-    udp_listener listener(service_, address, port, [&](const std::string& str)
+    udp_listener listener(*service, address, port, [&](const std::string& str)
     {
         trade_message_ptr_list msgs;
         if ( !trade_message::parse_block( str, msgs ) )
@@ -89,11 +91,15 @@ void multicast_communication::market_data_receiver::trade_proc(const std::string
             processor_.new_trade( msg );
         }
     });
-    service_.run();
+    service->run();
 }
 
 void multicast_communication::market_data_receiver::stop()
 {
-    service_.stop();
+    for ( auto& service: services_)
+    {
+        service->stop();
+    }
+
     threads_.join_all();
 }

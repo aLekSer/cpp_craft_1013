@@ -18,6 +18,8 @@ multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io
 
 multicast_communication::udp_listener::~udp_listener()
 {
+    socket_.close();
+    //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
 }
 
 void multicast_communication::udp_listener::socket_reload_()
@@ -35,7 +37,7 @@ void multicast_communication::udp_listener::register_listen_()
 {
 	using namespace boost::asio::placeholders;
 	socket_.async_receive( boost::asio::buffer( buffer_.get(), max_buffer_size ), 
-		boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
+	boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
 }
 
 void multicast_communication::udp_listener::listen_handler_( const boost::system::error_code& error, const size_t bytes_received )
@@ -47,6 +49,11 @@ void multicast_communication::udp_listener::listen_handler_( const boost::system
 		{
 			register_listen_();
 		}
+        else
+        {
+            std::cout << "upd_listener error - " << error.value()
+                << ":" <<error.message() << std::endl;
+        }
 		return;
 	}
 	else
