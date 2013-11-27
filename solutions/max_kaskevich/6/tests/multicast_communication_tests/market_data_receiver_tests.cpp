@@ -127,7 +127,7 @@ void multicast_communication::tests_::market_data_receiver_tests()
         std::ofstream output( async_writer_path );
 		async_writer writer( output );
 
-        market_data_receiver::ports quote_ports;
+        ports quote_ports;
         quote_ports.push_back( std::make_pair( "233.200.79.0", 61000 ) );
         quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
         quote_ports.push_back( std::make_pair( "233.200.79.2", 61002 ) );
@@ -136,7 +136,7 @@ void multicast_communication::tests_::market_data_receiver_tests()
         quote_ports.push_back( std::make_pair( "233.200.79.5", 61005 ) );
         quote_ports.push_back( std::make_pair( "233.200.79.6", 61006 ) );
         quote_ports.push_back( std::make_pair( "233.200.79.7", 61007 ) );
-        market_data_receiver::ports trade_ports;
+        ports trade_ports;
         trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
         trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
         trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
