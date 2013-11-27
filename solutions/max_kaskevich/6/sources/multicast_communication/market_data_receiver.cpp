@@ -36,28 +36,17 @@ void service_run( std::shared_ptr< boost::asio::io_service > service)
 
 void multicast_communication::market_data_receiver::start()
 {
-    for(auto port: quote_ports_)
+    for( auto& port: quote_ports_ )
     {
         service_ptr service ( new boost::asio::io_service() );
-        quote_udp_listeners_.push_back(std::make_pair( service,
-            udp_listener_ptr(
-                new udp_listener( *service, port.first, port.second, [&](const std::string& str)
-                    {
-                        quote_message_ptr_list msgs;
-                        if ( !quote_message::parse_block( str, msgs ) )
-                        {
-                            //std::cout << "bad block from " << port.first << ":" << port.second << std::endl;
-                        }
-                        for( auto msg: msgs)
-                        {
-                            processor_.new_quote( msg );
-                        }
-                    }
-                    )
-                )
-            ));
+        udp_listener_ptr listener(
+            new udp_listener( *service, port.first, port.second, [this](const std::string& block)
+                {
+                    threads_.create_thread( boost::bind(
+                        &multicast_communication::market_data_receiver::quote_handler, this, block ) );
+                } ) );
+        quote_udp_listeners_.push_back( std::make_pair( service, listener) );
     }
-
     
     for( size_t i = 0, j = 0; i < quote_thread_size_; ++i, ++j )
     {
@@ -68,26 +57,16 @@ void multicast_communication::market_data_receiver::start()
         threads_.create_thread( boost::bind( service_run, quote_udp_listeners_[ j ].first ) );
     }
 
-    for(auto port: trade_ports_)
+    for( auto& port: trade_ports_ )
     {
         service_ptr service ( new boost::asio::io_service() );
-        trade_udp_listeners_.push_back(std::make_pair( service,
-            udp_listener_ptr(
-            new udp_listener( *service, port.first, port.second, [&](const std::string& str)
+        udp_listener_ptr listener(
+            new udp_listener( *service, port.first, port.second, [this](const std::string& block)
                 {
-                    trade_message_ptr_list msgs;
-                    if ( ! trade_message::parse_block( str, msgs ) )
-                    {
-                       // std::cout << "bad block from " << port.first << ":" << port.second << std::endl;
-                    }
-                    for( auto msg: msgs)
-                    {
-                        processor_.new_trade( msg );
-                    }
-                }
-                )
-            )
-            ));
+                    threads_.create_thread( boost::bind(
+                        &multicast_communication::market_data_receiver::trade_handler, this, block ) );
+                } ) );
+        trade_udp_listeners_.push_back( std::make_pair( service, listener) );
     }
 
     for( size_t i = 0, j = 0; i < trade_thread_size_;  ++i, ++j )
@@ -100,19 +79,37 @@ void multicast_communication::market_data_receiver::start()
     }
 }
 
+void multicast_communication::market_data_receiver::quote_handler( const std::string& block)
+{
+    quote_message_ptr_list msgs;
+    quote_message::parse_block( block, msgs );
+    for( auto& msg: msgs )
+    {
+        processor_.new_quote( msg );
+    }
+}
+
+void multicast_communication::market_data_receiver::trade_handler( const std::string& block)
+{
+    trade_message_ptr_list msgs;
+    trade_message::parse_block( block, msgs );
+    for( auto& msg: msgs )
+    {
+        processor_.new_trade( msg );
+    }
+}
 
 void multicast_communication::market_data_receiver::stop()
 {
-    for ( auto& service_upd_lister_pair: quote_udp_listeners_)
+    for ( auto& service_upd_lister_pair: quote_udp_listeners_ )
     {
         service_upd_lister_pair.first->stop();
     }
 
-    for ( auto& service_upd_lister_pair: trade_udp_listeners_)
+    for ( auto& service_upd_lister_pair: trade_udp_listeners_ )
     {
         service_upd_lister_pair.first->stop();
     }
-
 
     threads_.join_all();
 }

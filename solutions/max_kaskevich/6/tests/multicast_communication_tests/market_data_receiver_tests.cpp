@@ -6,6 +6,7 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <clocale>
+#include <boost//filesystem.hpp>
 
 namespace multicast_communication
 {
@@ -22,7 +23,7 @@ namespace multicast_communication
         void get_quote_msgs_ouput( const std::string& block, std::ofstream& test_output );
         void get_trade_msgs_ouput( const std::string& block, std::ofstream& test_output );
 
-        void test_sender( const std::string address, unsigned short port, std::ofstream& test_output,
+        void test_sender( const std::string& address, unsigned short port, std::ofstream& test_output,
             std::function< void ( const std::string&, std::ofstream& ) > block_handler);
 
         class market_data_processor_test_helper : public market_data_processor
@@ -80,7 +81,7 @@ void multicast_communication::tests_::get_trade_msgs_ouput( const std::string& b
 }
 
 
-void multicast_communication::tests_::test_sender( const std::string address, unsigned short port,
+void multicast_communication::tests_::test_sender( const std::string& address, unsigned short port,
                                                   std::ofstream& test_output,
                                                   std::function< void ( const std::string&, std::ofstream& ) > block_handler)
 {
@@ -106,12 +107,12 @@ void multicast_communication::tests_::test_sender( const std::string address, un
         ++block_count;
         block_handler( block, test_output );
     }
-    std::cout << "block_count - " << block_count <<std::endl;
     BOOST_CHECK_EQUAL( input.eof(), true );
     socket.close();
     //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
     service.stop();
     receive_messages.join();
+    std::cout << "block_count - " << block_count <<std::endl;
 }
 
 void multicast_communication::tests_::market_data_receiver_tests()
@@ -119,23 +120,34 @@ void multicast_communication::tests_::market_data_receiver_tests()
      std::setlocale( LC_ALL, "" );
 	//BOOST_CHECK_NO_THROW
 	//( 
-        std::ofstream output( BINARY_DIR "/async_writer.output" );
-        std::ofstream test_output( BINARY_DIR "/test.output" );
+
+        std::string test_ouput_path = BINARY_DIR "/test.output";
+        std::string async_writer_path = BINARY_DIR "/async_writer.output";
+        std::ofstream test_output( test_ouput_path );
+        std::ofstream output( async_writer_path );
 		async_writer writer( output );
 
         market_data_receiver::ports quote_ports;
         quote_ports.push_back( std::make_pair( "233.200.79.0", 61000 ) );
-        //quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.2", 61002 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.3", 61003 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.4", 61004 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.5", 61005 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.6", 61006 ) );
+        quote_ports.push_back( std::make_pair( "233.200.79.7", 61007 ) );
         market_data_receiver::ports trade_ports;
-        //trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
-        //trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
-        market_data_receiver receiver( 0, 16, trade_ports, quote_ports, writer );
+        trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.132", 62132 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.133", 62133 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.134", 62134 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.135", 62135 ) );
+        market_data_receiver receiver( 16, 16, trade_ports, quote_ports, writer );
 
         boost::thread_group test_threads;
-
-        std::list< std::string > msgs_ouput;
 
         for ( auto point: quote_ports )
         {
@@ -151,18 +163,14 @@ void multicast_communication::tests_::market_data_receiver_tests()
 
         test_threads.join_all();
 
-        boost::this_thread::sleep_for( boost::chrono::milliseconds( 20000 ) );
-        //BOOST_CHECK_NO_THROW ( receiver.stop(); )
-        //BOOST_CHECK_NO_THROW ( writer.stop(); )
+        //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
+        BOOST_CHECK_NO_THROW( receiver.stop(); )
+        BOOST_CHECK_NO_THROW( writer.stop(); )
 
-        //std::string raw_output = output.str();
-        //for(auto msg_output: msgs_ouput)
-        //{
-        //    boost::erase_first( raw_output, msg_output);
-        //}
-
-        //BOOST_CHECK_EQUAL( raw_output.empty(), true );
-        
+        test_output.close();
+        output.close();
+        using boost::filesystem::file_size;
+        BOOST_CHECK_EQUAL( file_size( test_ouput_path ), file_size( async_writer_path ) );
 
 	//)
 }
