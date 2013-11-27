@@ -18,7 +18,7 @@ namespace multicast_communication
         ( 'E' , pow( 10.0, 5 ) ) ( 'F' , pow( 10.0, 6 ) ) ( 'G' , pow( 10.0, 7 ) )
         ( 'H' , pow( 10.0, 8 ) )
 
-        ('I' , 1.0 )
+        ('I' , 1.0 ) ('0' , 1.0 )
         ;
 
     template< size_t size > 

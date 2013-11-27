@@ -4,6 +4,7 @@
 
 
 #include "market_data_processor.h"
+#include "udp_listener.h"
 #include <boost/thread.hpp>
 #include <boost/asio.hpp>
 
@@ -19,14 +20,12 @@ namespace multicast_communication
         const ports& trade_ports_;
         const ports& quote_ports_;
         market_data_processor& processor_;
+        typedef std::shared_ptr< udp_listener > udp_listener_ptr;
+        typedef std::shared_ptr< boost::asio::io_service > service_ptr;
+        std::vector< std::pair< service_ptr, udp_listener_ptr > > quote_udp_listeners_;
+        std::vector< std::pair< service_ptr, udp_listener_ptr > > trade_udp_listeners_;
 
         boost::thread_group threads_;
-        typedef std::shared_ptr< boost::asio::io_service > service_ptr;
-         std::list< service_ptr > services_;
-
-
-        void quote_proc( service_ptr service, const std::string& address, unsigned short port );
-        void trade_proc( service_ptr service, const std::string& address, unsigned short port );
 
 	public:
 		explicit market_data_receiver( const size_t trade_thread_size, const size_t quote_thread_size,

@@ -9,5 +9,5 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 )
 
 compile_project( ${tests_name} "*.cpp" "*.h" BINARY tests ${module_name} Boost thread_safe_queue )
-register_test( ${tests_name} 125 124 )
+register_test( ${tests_name} 15 14 )
 

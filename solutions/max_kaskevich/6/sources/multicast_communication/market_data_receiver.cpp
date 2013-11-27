@@ -29,77 +29,90 @@ multicast_communication::market_data_receiver::~market_data_receiver(void)
     stop();
 }
 
+void service_run( std::shared_ptr< boost::asio::io_service > service)
+{
+    service->run();
+}
+
 void multicast_communication::market_data_receiver::start()
 {
-    int j = 0;
-    for( int i = 0; i < quote_thread_size_; ++i, ++j )
+    for(auto port: quote_ports_)
+    {
+        service_ptr service ( new boost::asio::io_service() );
+        quote_udp_listeners_.push_back(std::make_pair( service,
+            udp_listener_ptr(
+                new udp_listener( *service, port.first, port.second, [&](const std::string& str)
+                    {
+                        quote_message_ptr_list msgs;
+                        if ( !quote_message::parse_block( str, msgs ) )
+                        {
+                            //std::cout << "bad block from " << port.first << ":" << port.second << std::endl;
+                        }
+                        for( auto msg: msgs)
+                        {
+                            processor_.new_quote( msg );
+                        }
+                    }
+                    )
+                )
+            ));
+    }
+
+    
+    for( size_t i = 0, j = 0; i < quote_thread_size_; ++i, ++j )
     {
         if ( j == quote_ports_.size() )
         {
             j = 0;
         }
-        services_.push_back( service_ptr( new boost::asio::io_service() ) );
-        threads_.create_thread(
-            boost::bind( &multicast_communication::market_data_receiver::quote_proc, this,
-            services_.back(), quote_ports_[j].first, quote_ports_[j].second ) );
+        threads_.create_thread( boost::bind( service_run, quote_udp_listeners_[ j ].first ) );
     }
 
-    j = 0;
-    for( int i = 0; i < trade_thread_size_; ++i, ++j )
+    for(auto port: trade_ports_)
+    {
+        service_ptr service ( new boost::asio::io_service() );
+        trade_udp_listeners_.push_back(std::make_pair( service,
+            udp_listener_ptr(
+            new udp_listener( *service, port.first, port.second, [&](const std::string& str)
+                {
+                    trade_message_ptr_list msgs;
+                    if ( ! trade_message::parse_block( str, msgs ) )
+                    {
+                       // std::cout << "bad block from " << port.first << ":" << port.second << std::endl;
+                    }
+                    for( auto msg: msgs)
+                    {
+                        processor_.new_trade( msg );
+                    }
+                }
+                )
+            )
+            ));
+    }
+
+    for( size_t i = 0, j = 0; i < trade_thread_size_;  ++i, ++j )
     {
         if ( j == trade_ports_.size() )
         {
             j = 0;
         }
-        services_.push_back( service_ptr( new boost::asio::io_service() ) );
-        threads_.create_thread(
-            boost::bind( &multicast_communication::market_data_receiver::trade_proc, this,
-            services_.back(), trade_ports_[j].first, trade_ports_[j].second ) );
+        threads_.create_thread( boost::bind( service_run, trade_udp_listeners_[ j ].first ) );
     }
 }
 
-void multicast_communication::market_data_receiver::quote_proc( service_ptr service, const std::string& address,
-                                                               unsigned short port)
-{
-    udp_listener listener(*service, address, port, [&](const std::string& str)
-    {
-        quote_message_ptr_list msgs;
-        if ( !quote_message::parse_block( str, msgs ) )
-        {
-            std::cout << "bad block from " << address << ":" << port << std::endl;
-        }
-        for( auto msg: msgs)
-        {
-            processor_.new_quote( msg );
-        }
-    });
-    service->run();
-}
-
-void multicast_communication::market_data_receiver::trade_proc( service_ptr service, const std::string& address,
-                                                               unsigned short port)
-{
-    udp_listener listener(*service, address, port, [&](const std::string& str)
-    {
-        trade_message_ptr_list msgs;
-        if ( !trade_message::parse_block( str, msgs ) )
-        {
-            std::cout << "bad block from " << address << ":" << port << std::endl;
-        }
-        for( auto msg: msgs)
-        {
-            processor_.new_trade( msg );
-        }
-    });
-    service->run();
-}
 
 void multicast_communication::market_data_receiver::stop()
 {
-    for ( auto& service: services_)
+    for ( auto& service_upd_lister_pair: quote_udp_listeners_)
     {
-        service->stop();
+        service_upd_lister_pair.first->stop();
     }
+
+    for ( auto& service_upd_lister_pair: trade_udp_listeners_)
+    {
+        service_upd_lister_pair.first->stop();
+    }
+
 
     threads_.join_all();
 }
