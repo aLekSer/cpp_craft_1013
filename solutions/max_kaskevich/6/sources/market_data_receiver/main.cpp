@@ -1,25 +1,35 @@
 #include "market_data_receiver.h"
 #include "async_writer.h"
+#include "config_reader.h"
 #include <fstream>
-#include <signal.h>
+#include <csignal>
+#include <boost/thread.hpp>
+
+boost::mutex mtx;
+boost::condition_variable cond;
+
+void signalHandler( int signum )
+{
+    cond.notify_all();
+}
 
 using namespace multicast_communication;
 
 int main()
 {
+
     std::ofstream output( BINARY_DIR "/market.dat" );
     async_writer writer( output );
+    config_reader config;
+    if ( !config.read( std::ifstream( BINARY_DIR "/config.ini" ) ) )
+    {
+        std::cout << "Can not find config.ini" << std::endl;
+        return -1;
+    }
+    config.processor = &writer;
+    receiver_ptr receiver = config.generate_receiver();    
 
-    market_data_receiver::ports quote_ports;
-    quote_ports.push_back( std::make_pair( "233.200.79.0", 61000 ) );
-    quote_ports.push_back( std::make_pair( "233.200.79.1", 61001 ) );
-    market_data_receiver::ports trade_ports;
-    trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
-    trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
-    trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
-    trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
-    market_data_receiver receiver( 4, 2, trade_ports, quote_ports, writer );
-
-    
-
+    std::signal(SIGINT, signalHandler); 
+    boost::mutex::scoped_lock lock( mtx );
+    cond.wait( lock );
 }
