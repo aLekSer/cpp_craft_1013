@@ -20,8 +20,8 @@ namespace multicast_communication
 
         bool get_block( std::istream& input, std::string& block );
 
-        void get_quote_msgs_ouput( const std::string& block, std::ofstream& test_output );
-        void get_trade_msgs_ouput( const std::string& block, std::ofstream& test_output );
+        void write_quotes( const std::string& block, std::ofstream& test_output );
+        void write_trades( const std::string& block, std::ofstream& test_output );
 
         void test_sender( const std::string& address, unsigned short port, std::ofstream& test_output,
             std::function< void ( const std::string&, std::ofstream& ) > block_handler);
@@ -36,7 +36,7 @@ namespace multicast_communication
             virtual void new_quote( const quote_message_ptr& );
         };
 
-        boost::mutex mtx;
+        boost::mutex test_output_mtx;
     }
 }
 
@@ -59,9 +59,9 @@ bool multicast_communication::tests_::get_block( std::istream& input, std::strin
     return false;
 }
 
-void multicast_communication::tests_::get_quote_msgs_ouput( const std::string& block, std::ofstream& test_output )
+void multicast_communication::tests_::write_quotes( const std::string& block, std::ofstream& test_output )
 {
-    boost::mutex::scoped_lock lock(mtx);
+    boost::mutex::scoped_lock lock( test_output_mtx );
     quote_message_ptr_list msgs;
     BOOST_CHECK_NO_THROW ( quote_message::parse_block( block, msgs ); )
     for( auto msg: msgs )
@@ -69,9 +69,9 @@ void multicast_communication::tests_::get_quote_msgs_ouput( const std::string& b
         BOOST_CHECK_NO_THROW( test_output << *( msg ); )
     }
 }
-void multicast_communication::tests_::get_trade_msgs_ouput( const std::string& block, std::ofstream& test_output )
+void multicast_communication::tests_::write_trades( const std::string& block, std::ofstream& test_output )
 {
-    boost::mutex::scoped_lock lock(mtx);
+    boost::mutex::scoped_lock lock( test_output_mtx );
     trade_message_ptr_list msgs;
     BOOST_CHECK_NO_THROW (  trade_message::parse_block( block, msgs ); )
     for( auto msg: msgs )
@@ -82,8 +82,7 @@ void multicast_communication::tests_::get_trade_msgs_ouput( const std::string& b
 
 
 void multicast_communication::tests_::test_sender( const std::string& address, unsigned short port,
-                                                  std::ofstream& test_output,
-                                                  std::function< void ( const std::string&, std::ofstream& ) > block_handler)
+    std::ofstream& test_output, std::function< void ( const std::string&, std::ofstream& ) > block_handler )
 {
     std::ifstream input ( ( boost::format( TEST_DATA_DIR "/%1%.udp" ) % address ).str() );
     BOOST_CHECK_EQUAL( input.is_open(), true );
@@ -99,12 +98,10 @@ void multicast_communication::tests_::test_sender( const std::string& address, u
     boost::thread receive_messages( boost::bind( detail::service_thread, boost::ref( service ) ) );
 
     std::string block;
-    int block_count = 0;
     while( get_block( input, block ) )
     {
         socket.send_to( boost::asio::buffer( block ), endpoint );
         //boost::this_thread::sleep_for( boost::chrono::milliseconds( 20 ) );
-        ++block_count;
         block_handler( block, test_output );
     }
     BOOST_CHECK_EQUAL( input.eof(), true );
@@ -112,7 +109,6 @@ void multicast_communication::tests_::test_sender( const std::string& address, u
     //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
     service.stop();
     receive_messages.join();
-    std::cout << "block_count - " << block_count <<std::endl;
 }
 
 void multicast_communication::tests_::market_data_receiver_tests()
@@ -121,8 +117,8 @@ void multicast_communication::tests_::market_data_receiver_tests()
 	//BOOST_CHECK_NO_THROW
 	//( 
 
-        std::string test_ouput_path = BINARY_DIR "/test.output";
-        std::string async_writer_path = BINARY_DIR "/async_writer.output";
+        const std::string test_ouput_path = BINARY_DIR "/test.output";
+        const std::string async_writer_path = BINARY_DIR "/async_writer.output";
         std::ofstream test_output( test_ouput_path );
         std::ofstream output( async_writer_path );
 		async_writer writer( output );
@@ -152,13 +148,13 @@ void multicast_communication::tests_::market_data_receiver_tests()
         for ( auto point: quote_ports )
         {
             test_threads.create_thread(
-                boost::bind( test_sender, point.first, point.second, boost::ref( test_output ), get_quote_msgs_ouput ) );
+                boost::bind( test_sender, point.first, point.second, boost::ref( test_output ), write_quotes ) );
         }
 
         for ( auto point: trade_ports )
         {
             test_threads.create_thread(
-                boost::bind( test_sender, point.first, point.second, boost::ref( test_output ), get_trade_msgs_ouput ) );
+                boost::bind( test_sender, point.first, point.second, boost::ref( test_output ), write_trades ) );
         }
 
         test_threads.join_all();
@@ -170,7 +166,9 @@ void multicast_communication::tests_::market_data_receiver_tests()
         test_output.close();
         output.close();
         using boost::filesystem::file_size;
+        using boost::filesystem::path;
         BOOST_CHECK_EQUAL( file_size( test_ouput_path ), file_size( async_writer_path ) );
-
+        //boost::filesystem::remove( path( test_ouput_path ) );
+        //boost::filesystem::remove( path( async_writer_path ) );
 	//)
 }

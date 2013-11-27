@@ -30,11 +30,12 @@ void multicast_communication::tests_::udp_listener_tests()
 
 	{
         boost::timed_mutex mtx;
-
+        bool callback_checked = false;
 		boost::asio::io_service service;
 		udp_listener uw( service, "224.0.0.0", 50000, [&](std::string& str) -> void {
             BOOST_CHECK_EQUAL( strcmp( str.c_str(), "hello world" ), 0 );
             mtx.unlock();
+            callback_checked = true;
         } );
 
 		const std::string buffer( "hello world" );
@@ -45,6 +46,7 @@ void multicast_communication::tests_::udp_listener_tests()
         mtx.try_lock_for( boost::chrono::milliseconds( 2000 ) );
 		service.stop();
 		receive_messages.join();
+        BOOST_CHECK_EQUAL( callback_checked, true );
 	}
 	//{
 	//	boost::asio::io_service service;
