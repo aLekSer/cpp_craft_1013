@@ -11,8 +11,8 @@ namespace multicast_communication
     typedef boost::shared_ptr< trade_message > trade_message_ptr;
     typedef std::list< trade_message_ptr > trade_message_ptr_list;
 
-	class trade_message
-	{
+    class trade_message
+    {
     public:
         enum trade_type
         {
@@ -48,9 +48,9 @@ namespace multicast_communication
             return header.type();
         }
 
-		std::string security_symbol() const;
-		double price() const;
-		double volume() const;
+        std::string security_symbol() const;
+        double price() const;
+        double volume() const;
 
         static bool parse_block(const std::string& block, trade_message_ptr_list& msgs);
 
@@ -65,7 +65,7 @@ namespace multicast_communication
 
         friend std::istream& operator>>( std::istream& input, trade_message& msg_ptr );
 
-	};
+    };
 
 
     std::istream& operator>>( std::istream& input, trade_message::header_type& header );

@@ -11,8 +11,8 @@ namespace multicast_communication
     typedef boost::shared_ptr< quote_message > quote_message_ptr;
     typedef std::list< quote_message_ptr > quote_message_ptr_list;
 
-	class quote_message
-	{
+    class quote_message
+    {
     public:
         enum quote_type
         {
@@ -47,11 +47,11 @@ namespace multicast_communication
         {        
         }
 
-		std::string security_symbol() const;
-		double bid_price() const;
-		double bid_volume() const;
-		double offer_price() const;
-		double offer_volume() const;
+        std::string security_symbol() const;
+        double bid_price() const;
+        double bid_volume() const;
+        double offer_price() const;
+        double offer_volume() const;
 
 
         quote_type type()
@@ -74,9 +74,9 @@ namespace multicast_communication
 
         friend std::istream& operator>>( std::istream& input, quote_message& msg_ptr );
 
-	};
+    };
 
-	
+    
 
     std::istream& operator>>( std::istream& input, quote_message::header_type& header );
     std::istream& operator>>( std::istream& input, quote_message& msg );

@@ -14,8 +14,8 @@ namespace multicast_communication
     typedef std::shared_ptr< boost::asio::io_service > service_ptr;
     typedef std::vector< std::pair< std::string, unsigned short > > ports;
 
-	class market_data_receiver
-	{
+    class market_data_receiver
+    {
     private:
         const size_t trade_thread_size_;
         const size_t quote_thread_size_;
@@ -28,14 +28,14 @@ namespace multicast_communication
         boost::thread_group threads_;
         void quote_handler( const std::string& block);
         void trade_handler( const std::string& block);
-	public:
-		explicit market_data_receiver( const size_t trade_thread_size, const size_t quote_thread_size,
+    public:
+        explicit market_data_receiver( const size_t trade_thread_size, const size_t quote_thread_size,
             const ports& quote_ports, const ports& trade_ports, market_data_processor& processor );
-		virtual ~market_data_receiver();
+        virtual ~market_data_receiver();
 
         void start();
         void stop();
-	};
+    };
 }
 
 #endif // _MULTICAST_COMMUNICATION_DATA_RECEIVER_H_

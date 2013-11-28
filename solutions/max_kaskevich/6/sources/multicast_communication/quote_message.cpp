@@ -5,27 +5,27 @@
 
 std::string multicast_communication::quote_message::security_symbol() const
 {
-	return security_symbol_;
+    return security_symbol_;
 }
 
 double multicast_communication::quote_message::bid_price() const
 {
-	return bid_price_;
+    return bid_price_;
 }
 
 double multicast_communication::quote_message::bid_volume() const
 {
-	return bid_volume_;
+    return bid_volume_;
 }
 
 double multicast_communication::quote_message::offer_price() const
 {
-	return offer_price_;
+    return offer_price_;
 }
 
 double multicast_communication::quote_message::offer_volume() const
 {
-	return offer_volume_;
+    return offer_volume_;
 }
 
 std::istream& multicast_communication::operator>>( std::istream& input, quote_message::header_type& header)

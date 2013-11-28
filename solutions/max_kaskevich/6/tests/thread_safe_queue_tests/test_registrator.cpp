@@ -3,15 +3,15 @@
 #include <boost/test/unit_test.hpp>
 
 #ifdef BOOST_TEST_DYN_LINK
-	bool init_unit_test_suite()
+    bool init_unit_test_suite()
 #else
-	boost::unit_test_framework::test_suite* init_unit_test_suite( int, char*[] )
+    boost::unit_test_framework::test_suite* init_unit_test_suite( int, char*[] )
 #endif
 {
-	using boost::unit_test_framework::test_case;
-	boost::unit_test_framework::test_suite& master_test_suite = boost::unit_test::framework::master_test_suite();
+    using boost::unit_test_framework::test_case;
+    boost::unit_test_framework::test_suite& master_test_suite = boost::unit_test::framework::master_test_suite();
 
-	using namespace multicast_communication::tests_;
+    using namespace multicast_communication::tests_;
 
     master_test_suite.add( BOOST_TEST_CASE( &thread_safe_queue_tests ) );    
     master_test_suite.add( BOOST_TEST_CASE( &thread_safe_queue_many_thread_tests ) );    
@@ -23,9 +23,9 @@
 #endif
 
 #ifdef BOOST_TEST_DYN_LINK
-	return true;
+    return true;
 #else
-	return NULL;
+    return NULL;
 #endif
 }
 

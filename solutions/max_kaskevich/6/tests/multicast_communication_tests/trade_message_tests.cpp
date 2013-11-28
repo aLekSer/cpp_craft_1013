@@ -33,14 +33,14 @@ namespace multicast_communication
 
 void multicast_communication::tests_::trade_message_tests()
 {
-	BOOST_CHECK_NO_THROW
-	(
-		trade_message tm;
+    BOOST_CHECK_NO_THROW
+    (
+        trade_message tm;
 
-		BOOST_CHECK_EQUAL( tm.security_symbol(), "" );
-		BOOST_CHECK_EQUAL( tm.price(), 0.0 );
-		BOOST_CHECK_EQUAL( tm.volume(), 0.0 );
-	)
+        BOOST_CHECK_EQUAL( tm.security_symbol(), "" );
+        BOOST_CHECK_EQUAL( tm.price(), 0.0 );
+        BOOST_CHECK_EQUAL( tm.volume(), 0.0 );
+    )
 
 
     { // test short trade

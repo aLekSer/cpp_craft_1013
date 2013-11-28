@@ -8,9 +8,9 @@
 namespace multicast_communication
 {
 
-	template< typename T >
-	class thread_safe_queue
-	{
+    template< typename T >
+    class thread_safe_queue
+    {
         struct node
         {
             std::shared_ptr< node > next;
@@ -29,38 +29,38 @@ namespace multicast_communication
         boost::mutex wait_not_empty_;
         bool disable_wait_;
 
-	public:
-		explicit thread_safe_queue();
-		~thread_safe_queue();
+    public:
+        explicit thread_safe_queue();
+        ~thread_safe_queue();
 
-		void push( const T& new_element );
-		bool pop( T& result );
+        void push( const T& new_element );
+        bool pop( T& result );
         bool wait_pop( T& result );
         void enable_wait();
         void disable_wait();
 
-		bool empty() const;
-		size_t size() const;
-	};
+        bool empty() const;
+        size_t size() const;
+    };
 
-	template< typename T >
-	thread_safe_queue< T >::thread_safe_queue() :
+    template< typename T >
+    thread_safe_queue< T >::thread_safe_queue() :
         first_( nullptr ),
         last_( nullptr ),
         size_( 0 ),
         disable_wait_(false)
-	{
+    {
          wait_not_empty_.lock();
-	}
+    }
 
-	template< typename T >
-	thread_safe_queue< T >::~thread_safe_queue()
-	{
-	}
+    template< typename T >
+    thread_safe_queue< T >::~thread_safe_queue()
+    {
+    }
 
-	template< typename T >
-	void thread_safe_queue< T >::push( const T&  elem )
-	{
+    template< typename T >
+    void thread_safe_queue< T >::push( const T&  elem )
+    {
         boost::mutex::scoped_lock lock(mtx_);
         if ( empty() )
         {
@@ -78,11 +78,11 @@ namespace multicast_communication
         last_ = push_node;
         ++size_;   
 
-	}
+    }
 
-	template< typename T >
-	bool thread_safe_queue< T >::pop( T& elem )
-	{
+    template< typename T >
+    bool thread_safe_queue< T >::pop( T& elem )
+    {
         boost::mutex::scoped_lock lock(mtx_);
         if( first_ )
         {
@@ -101,8 +101,8 @@ namespace multicast_communication
             }
             return true;
         }
-		return false;
-	}
+        return false;
+    }
 
     template< typename T >
     bool thread_safe_queue< T >::wait_pop( T& elem )
@@ -128,17 +128,17 @@ namespace multicast_communication
         wait_not_empty_.unlock();
     }
 
-	template< typename T >
-	bool thread_safe_queue< T >::empty() const
-	{
-		return !size_;
-	}
+    template< typename T >
+    bool thread_safe_queue< T >::empty() const
+    {
+        return !size_;
+    }
 
-	template< typename T >
-	size_t thread_safe_queue< T >::size() const
-	{
-		return size_;
-	}
+    template< typename T >
+    size_t thread_safe_queue< T >::size() const
+    {
+        return size_;
+    }
 
 }
 

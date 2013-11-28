@@ -114,14 +114,14 @@ void multicast_communication::tests_::test_sender( const std::string& address, u
 void multicast_communication::tests_::market_data_receiver_tests()
 {
      std::setlocale( LC_ALL, "" );
-	//BOOST_CHECK_NO_THROW
-	//( 
+    //BOOST_CHECK_NO_THROW
+    //( 
 
         const std::string test_ouput_path = BINARY_DIR "/test.output";
         const std::string async_writer_path = BINARY_DIR "/async_writer.output";
         std::ofstream test_output( test_ouput_path );
         std::ofstream output( async_writer_path );
-		async_writer writer( output );
+        async_writer writer( output );
 
         ports quote_ports;
         quote_ports.push_back( std::make_pair( "233.200.79.0", 61000 ) );
@@ -170,5 +170,5 @@ void multicast_communication::tests_::market_data_receiver_tests()
         BOOST_CHECK_EQUAL( file_size( test_ouput_path ), file_size( async_writer_path ) );
         //boost::filesystem::remove( path( test_ouput_path ) );
         //boost::filesystem::remove( path( async_writer_path ) );
-	//)
+    //)
 }

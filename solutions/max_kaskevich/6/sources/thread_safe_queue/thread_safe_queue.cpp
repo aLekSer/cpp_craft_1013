@@ -2,15 +2,15 @@
 
 namespace multicast_communication
 {
-	void instantiation_test();
+    void instantiation_test();
 }
 
 void multicast_communication::instantiation_test()
 {
-	thread_safe_queue< int > tsqi;
-	tsqi.push( 45 );
-	int res;
-	tsqi.wait_pop( res );
-	tsqi.empty();
-	tsqi.size();
+    thread_safe_queue< int > tsqi;
+    tsqi.push( 45 );
+    int res;
+    tsqi.wait_pop( res );
+    tsqi.empty();
+    tsqi.size();
 }

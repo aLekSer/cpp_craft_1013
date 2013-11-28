@@ -6,17 +6,17 @@
 
 std::string multicast_communication::trade_message::security_symbol() const
 {
-	return security_symbol_;
+    return security_symbol_;
 }
 
 double multicast_communication::trade_message::price() const
 {
-	return price_;
+    return price_;
 }
 
 double multicast_communication::trade_message::volume() const
 {
-	return volume_;
+    return volume_;
 }
 
 std::istream& multicast_communication::operator>>( std::istream& input, trade_message::header_type& header)
