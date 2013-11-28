@@ -65,6 +65,8 @@ std::istream& multicast_communication::operator>>( std::istream& input, trade_me
     case trade_message::LONG_TRADE:
         msg.read_long( input );
         break;
+    default:
+        break;
     }
     return input;
 }

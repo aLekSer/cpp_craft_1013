@@ -74,6 +74,8 @@ std::istream& multicast_communication::operator>>( std::istream& input, quote_me
     case quote_message::LONG_QUOTE:
         msg.read_long( input );
         break;
+    default:
+        break;
     }
     return input;
 }
