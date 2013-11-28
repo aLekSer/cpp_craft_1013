@@ -56,6 +56,7 @@ namespace multicast_communication
     template< typename T >
     thread_safe_queue< T >::~thread_safe_queue()
     {
+        disable_wait();
     }
 
     template< typename T >
@@ -119,13 +120,21 @@ namespace multicast_communication
     void thread_safe_queue< T >::enable_wait()
     {
         disable_wait_ = false;
+        boost::mutex::scoped_lock lock(mtx_);
+        if ( empty() )
+        {
+            wait_not_empty_.try_lock();
+        }
     }
 
     template< typename T >
     void thread_safe_queue< T >::disable_wait()
     {
-        disable_wait_ = true;
-        wait_not_empty_.unlock();
+        if ( !disable_wait_ )
+        {
+            disable_wait_ = true;
+            wait_not_empty_.unlock();
+        }
     }
 
     template< typename T >
