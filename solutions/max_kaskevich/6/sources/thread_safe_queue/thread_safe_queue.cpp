@@ -10,7 +10,7 @@ void multicast_communication::instantiation_test()
     thread_safe_queue< int > tsqi;
     tsqi.push( 45 );
     int res;
-    tsqi.wait_pop( res );
+    tsqi.wait_and_pop( res );
     tsqi.empty();
     tsqi.size();
 }

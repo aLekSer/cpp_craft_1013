@@ -50,7 +50,7 @@ multicast_communication::tests_::detail::thread_safe_queue_many_thread_helper::t
     while ( !queue.empty() )
     {
         int data;
-        if ( queue.pop( data ) )
+        if ( queue.try_pop( data ) )
             ++amount;
     }
 
@@ -71,7 +71,7 @@ void multicast_communication::tests_::detail::thread_safe_queue_many_thread_help
     while ( !queue.empty() )
     {
         int data;
-        if ( queue.pop( data ) )
+        if ( queue.try_pop( data ) )
             ++amount;
     }
     boost::mutex::scoped_lock increase_size( protect_size_ );
@@ -96,14 +96,41 @@ void multicast_communication::tests_::thread_safe_queue_tests()
         BOOST_CHECK_EQUAL( tsq.empty() , false );
 
         int res;
-        BOOST_CHECK_EQUAL( tsq.pop( res ), true );
+        BOOST_CHECK_EQUAL( tsq.try_pop( res ), true );
         BOOST_CHECK_EQUAL( res, 54 );
         BOOST_CHECK_EQUAL( tsq.size() , 0ul );
         BOOST_CHECK_EQUAL( tsq.empty() , true );
 
         res = 4265624;
-        BOOST_CHECK_EQUAL( tsq.pop( res ), false );
+        BOOST_CHECK_EQUAL( tsq.try_pop( res ), false );
         BOOST_CHECK_EQUAL( res, 4265624 );
+    }
+
+    {
+        thread_safe_queue< int > tsq;
+        tsq.push( 12345 );
+        tsq.push( 54321 );
+        int check = 0;
+
+        boost::thread_group threads;
+        threads.create_thread([&]()
+        {
+            int res;
+            tsq.wait_and_pop( res ); 
+            BOOST_CHECK_EQUAL( res == 12345 || res == 54321,  true );
+            ++check;
+        } );
+        threads.create_thread([&]()
+        {
+            int res;
+            tsq.wait_and_pop( res ); 
+            BOOST_CHECK_EQUAL( res == 12345 || res == 54321,  true );
+            ++check;
+        } );
+
+        boost::this_thread::sleep_for( boost::chrono::nanoseconds( 1 ) );
+        threads.join_all();
+        BOOST_CHECK_EQUAL( check,  2 );
     }
 
     {
@@ -115,14 +142,14 @@ void multicast_communication::tests_::thread_safe_queue_tests()
         threads.create_thread([&]()
         {
             int res;
-            tsq.wait_pop( res ); 
+            tsq.wait_and_pop( res ); 
             BOOST_CHECK_EQUAL( res == 12345 || res == 54321,  true );
             ++check;
         } );
         threads.create_thread([&]()
         {
             int res;
-            tsq.wait_pop( res ); 
+            tsq.wait_and_pop( res ); 
             BOOST_CHECK_EQUAL( res == 12345 || res == 54321,  true );
             ++check;
         } );
@@ -143,7 +170,7 @@ void multicast_communication::tests_::thread_safe_queue_tests()
         boost::thread test_thread([&]()
         {
             int res;           
-            bool readed = tsq.wait_pop( res );
+            bool readed = tsq.wait_and_pop( res );
             BOOST_CHECK_EQUAL( readed ,  false );
             ++check;
         } );

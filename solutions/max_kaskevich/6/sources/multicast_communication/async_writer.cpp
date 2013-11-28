@@ -28,7 +28,7 @@ void multicast_communication::async_writer::new_quote( const quote_message_ptr& 
 void multicast_communication::async_writer::quote_proc()
 {
     quote_message_ptr msg;
-    while( output_ && quote_queue_.wait_pop( msg ) )
+    while( output_ && quote_queue_.wait_and_pop( msg ) )
     {
         boost::mutex::scoped_lock lock( mtx_ );
         output_ << *( msg );
@@ -38,7 +38,7 @@ void multicast_communication::async_writer::quote_proc()
 void multicast_communication::async_writer::trade_proc()
 {
     trade_message_ptr msg;
-    while( output_ && trade_queue_.wait_pop( msg ) )
+    while( output_ && trade_queue_.wait_and_pop( msg ) )
     {
         boost::mutex::scoped_lock lock( mtx_ );
         output_ << *( msg );
