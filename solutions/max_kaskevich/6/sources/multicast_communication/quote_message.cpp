@@ -55,6 +55,7 @@ std::istream& multicast_communication::operator>>( std::istream& input, quote_me
             header.type_ = quote_message::LONG_QUOTE;
             break;
         default:
+            header.type_ = quote_message::ANOTHER;
             break;
         }
     }

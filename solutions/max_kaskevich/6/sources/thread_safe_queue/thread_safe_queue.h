@@ -107,6 +107,10 @@ namespace multicast_communication
     template< typename T >
     bool thread_safe_queue< T >::wait_pop( T& elem )
     {
+        if( disable_wait_  )
+        {
+            return false;
+        }
         wait_not_empty_.lock();
         return !disable_wait_ && pop( elem );
     }

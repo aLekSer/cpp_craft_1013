@@ -8,7 +8,7 @@ namespace multicast_communication
 {
 	class market_data_processor
 	{
-		friend class market_data_receiver; // please insert here your processing class 
+		friend class market_data_receiver;
 	public:
 		explicit market_data_processor(){}
 		virtual ~market_data_processor(){}

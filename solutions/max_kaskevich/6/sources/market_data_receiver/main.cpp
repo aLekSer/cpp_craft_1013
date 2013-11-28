@@ -8,7 +8,7 @@
 boost::mutex mtx;
 boost::condition_variable cond;
 
-void signalHandler( int signum )
+void signal_handler( int )
 {
     cond.notify_all();
 }
@@ -29,7 +29,7 @@ int main()
     config.processor = &writer;
     receiver_ptr receiver = config.generate_receiver();    
 
-    std::signal(SIGINT, signalHandler); 
+    std::signal( SIGINT, signal_handler );
     boost::mutex::scoped_lock lock( mtx );
     cond.wait( lock );
 }

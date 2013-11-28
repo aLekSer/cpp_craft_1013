@@ -7,5 +7,5 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 	regex
 )
 
-compile_project( ${module_name} "*.cpp" "*.h" BINARY binaries multicast_communication Boost multicast_communication thread_safe_queue)
+compile_project( ${module_name} "*.cpp" "*.h" BINARY binaries multicast_communication Boost thread_safe_queue)
 

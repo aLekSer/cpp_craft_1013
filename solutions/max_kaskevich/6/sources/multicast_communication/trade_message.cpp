@@ -46,6 +46,7 @@ std::istream& multicast_communication::operator>>( std::istream& input, trade_me
             header.type_ = trade_message::LONG_TRADE;
             break;
         default:
+            header.type_ = trade_message::ANOTHER;
             break;
         }
     }
