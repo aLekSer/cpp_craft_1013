@@ -21,7 +21,7 @@ bool multicast_communication::config_reader::read( std::istream& config )
         config >> address >> port;
         quote_ports.push_back( std::make_pair( address, port ) );
     }
-    return config;
+    return config.good();
 }
 
 multicast_communication::receiver_ptr multicast_communication::config_reader::generate_receiver()
