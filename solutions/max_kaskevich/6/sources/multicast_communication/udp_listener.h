@@ -24,7 +24,7 @@ namespace multicast_communication
 
         typedef std::unique_ptr< char[]> buffer_type;
         buffer_type buffer_;
-        typedef std::function< void ( std::string& ) > callback_type;
+        typedef std::function< void ( const std::string& ) > callback_type;
         callback_type callback_;
 
         mutable boost::mutex protect_messages_;

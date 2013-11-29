@@ -25,14 +25,14 @@ void multicast_communication::tests_::udp_listener_tests()
     BOOST_CHECK_NO_THROW
     ( 
         boost::asio::io_service service;
-        udp_listener uw( service, "224.0.0.0", 50000, [](std::string& str) -> void {} );
+        udp_listener uw( service, "224.0.0.0", 50000, []( const std::string& str) -> void {} );
     );
 
     {
         boost::timed_mutex mtx;
         bool callback_checked = false;
         boost::asio::io_service service;
-        udp_listener uw( service, "224.0.0.0", 50000, [&](std::string& str) -> void {
+        udp_listener uw( service, "224.0.0.0", 50000, [&]( const std::string& str) -> void {
             BOOST_CHECK_EQUAL( strcmp( str.c_str(), "hello world" ), 0 );
             mtx.unlock();
             callback_checked = true;
