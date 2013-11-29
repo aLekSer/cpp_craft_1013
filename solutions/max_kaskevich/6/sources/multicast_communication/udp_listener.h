@@ -13,7 +13,7 @@ namespace multicast_communication
 {
     class udp_listener : virtual private boost::noncopyable
     {
-        static const size_t max_buffer_size = 1000u;
+        size_t buffer_size_;
 
         boost::asio::io_service& io_service_;
 
@@ -32,7 +32,7 @@ namespace multicast_communication
 
     public:
         explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address,
-            unsigned short port, callback_type callback);
+            unsigned short port, callback_type callback, size_t buffer_size = 1000u );
         ~udp_listener();
     private:
         void socket_reload_();

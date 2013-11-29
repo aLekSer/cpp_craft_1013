@@ -3,13 +3,15 @@
 #include <boost/bind.hpp>
 
 multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io_service,
-                                                     const std::string& multicast_address, unsigned short port,
-                                                     callback_type callback)
-    : io_service_( io_service )
+                                                     const std::string& multicast_address,
+                                                     unsigned short port,
+                                                     callback_type callback, size_t buffer_size )
+    : buffer_size_( buffer_size )
+    , io_service_( io_service )
     , listen_endpoint_( boost::asio::ip::address::from_string( "0.0.0.0" ), port )
     , socket_( io_service_ )
     , multicast_address_( multicast_address )
-    , buffer_(new char[ max_buffer_size ])
+    , buffer_(new char[ buffer_size_ ])
     , callback_( callback )
 {
     socket_reload_();
@@ -19,7 +21,6 @@ multicast_communication::udp_listener::udp_listener( boost::asio::io_service& io
 multicast_communication::udp_listener::~udp_listener()
 {
     socket_.close();
-    //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
 }
 
 void multicast_communication::udp_listener::socket_reload_()
@@ -36,23 +37,24 @@ void multicast_communication::udp_listener::socket_reload_()
 void multicast_communication::udp_listener::register_listen_()
 {
     using namespace boost::asio::placeholders;
-    socket_.async_receive( boost::asio::buffer( buffer_.get(), max_buffer_size ), 
+    socket_.async_receive( boost::asio::buffer( buffer_.get(), buffer_size_ ), 
     boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
 }
 
-void multicast_communication::udp_listener::listen_handler_( const boost::system::error_code& error, const size_t bytes_received )
+void multicast_communication::udp_listener::listen_handler_( const boost::system::error_code& error,
+                                                            const size_t bytes_received )
 {
     if ( error )
     {
         static const int NO_ENOUGHT_BUFFER = 234;
-        if ( error.value() == NO_ENOUGHT_BUFFER ) // wat?! 1000 is max by CQS, CTS 
+        if ( error.value() == NO_ENOUGHT_BUFFER ) 
         {
             register_listen_();
         }
         else
         {
             std::cout << "upd_listener error - " << error.value()
-                << ":" <<error.message() << std::endl;
+                << ":" << error.message() << std::endl;
         }
         return;
     }
