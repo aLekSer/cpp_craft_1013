@@ -1,6 +1,7 @@
 @echo off
 
-set SOLUTION_NAME=trade_processor_project
+set SOLUTION_NAME=minute_market_data
+set MULTICAST_COMMUNICATION_ROOT=%CD%/../6/
 
 set BUILD_TYPE=Debug
 if [%1]==[Release] (
