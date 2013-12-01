@@ -39,7 +39,7 @@ if (multicast_communication_DEBUG)
 	message(STATUS "Binary search folder: " ${binary_search_folder} )
 endif(multicast_communication_DEBUG)
 
-set(components multicast_communication)
+set(components multicast_communication thread_safe_queue)
 
 foreach(component ${multicast_communication_FIND_COMPONENTS})
 
