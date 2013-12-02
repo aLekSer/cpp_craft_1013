@@ -42,6 +42,7 @@ void multicast_communication::tests_::quote_message_tests()
         BOOST_CHECK_EQUAL( qm.bid_volume(), 0.0 );
         BOOST_CHECK_EQUAL( qm.offer_price(), 0.0 );
         BOOST_CHECK_EQUAL( qm.offer_volume(), 0.0 );
+        BOOST_CHECK_EQUAL( qm.time(), 0.0 );
     )
 
 
@@ -59,6 +60,7 @@ void multicast_communication::tests_::quote_message_tests()
             BOOST_CHECK_EQUAL( fabs( qm.bid_volume() -  6.0 ) < eps, true );
             BOOST_CHECK_EQUAL( fabs( qm.offer_price() -  41.48 ) < eps, true );
             BOOST_CHECK_EQUAL( fabs( qm.offer_volume() -  4.0 ) < eps, true );
+            BOOST_CHECK_EQUAL( qm.time(), 37607u );
     }
 
     { // test long quote
@@ -75,6 +77,7 @@ void multicast_communication::tests_::quote_message_tests()
         BOOST_CHECK_EQUAL( fabs( qm.bid_volume() -  1.0 ) < eps, true );
         BOOST_CHECK_EQUAL( fabs( qm.offer_price() -  121.58 ) < eps, true );
         BOOST_CHECK_EQUAL( fabs( qm.offer_volume() -  1.0 ) < eps, true );
+        BOOST_CHECK_EQUAL( qm.time(), 37607u );
     }
 
     { // test write message

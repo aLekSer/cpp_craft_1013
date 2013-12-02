@@ -23,17 +23,24 @@ namespace multicast_communication
         class header_type
         {
             quote_type type_;
+            uint32_t time_;
             friend std::istream& operator>>( std::istream& input, quote_message::header_type& header);
         public:
             static const size_t size = 24;
             header_type() :
-                type_(ANOTHER)
+                type_( ANOTHER ),
+                time_( 0u )
             {}
 
 
             quote_type type()
             {
                 return type_;
+            }
+
+            uint32_t time()
+            {
+                return time_;
             }
         };
 
@@ -57,6 +64,11 @@ namespace multicast_communication
         quote_type type()
         {
             return header.type();
+        }
+
+        uint32_t time()
+        {
+            return header.time();
         }
         
         static bool parse_block(const std::string& block, quote_message_ptr_list& msgs);

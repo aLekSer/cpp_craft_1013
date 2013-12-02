@@ -40,6 +40,7 @@ void multicast_communication::tests_::trade_message_tests()
         BOOST_CHECK_EQUAL( tm.security_symbol(), "" );
         BOOST_CHECK_EQUAL( tm.price(), 0.0 );
         BOOST_CHECK_EQUAL( tm.volume(), 0.0 );
+        BOOST_CHECK_EQUAL( tm.time(), 0.0 );
     )
 
 
@@ -52,6 +53,7 @@ void multicast_communication::tests_::trade_message_tests()
         BOOST_CHECK_EQUAL( tm.security_symbol(), "ACN" );
         BOOST_CHECK_EQUAL( fabs( tm.price() -  77.90 ) < eps, true );
         BOOST_CHECK_EQUAL( fabs( tm.volume() -  100.0 ) < eps, true );
+        BOOST_CHECK_EQUAL( tm.time(), 36225u );
     }
 
     { // test long trade

@@ -59,7 +59,13 @@ std::istream& multicast_communication::operator>>( std::istream& input, quote_me
             break;
         }
     }
-    input.ignore( 22 ); // unnecessary data
+    input.ignore( 16 ); // unnecessary data
+
+    char time_data[3];
+    input.read( time_data, 3 );
+    header.time_ = get_seconds( time_data );
+
+    input.ignore( 3 ); // unnecessary data
     return input;
 }
 

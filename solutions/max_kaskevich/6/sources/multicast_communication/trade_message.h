@@ -23,17 +23,24 @@ namespace multicast_communication
         class header_type
         {
             trade_type type_;
+            uint32_t time_;
+
             friend std::istream& operator>>( std::istream& input, trade_message::header_type& header);
         public:
             static const size_t size = 24;
             header_type() :
-                type_(ANOTHER)
+                type_( ANOTHER ),
+                time_( 0u )
             {}
 
 
             trade_type type()
             {
                 return type_;
+            }
+            uint32_t time()
+            {
+                return time_;
             }
         };
 
@@ -46,6 +53,11 @@ namespace multicast_communication
         trade_type type()
         {
             return header.type();
+        }
+
+        uint32_t time()
+        {
+            return header.time();
         }
 
         std::string security_symbol() const;

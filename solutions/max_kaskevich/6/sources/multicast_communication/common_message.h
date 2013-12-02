@@ -6,6 +6,7 @@
 #include <iostream>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign.hpp>
+#include <mutex>
 
 namespace multicast_communication
 {
@@ -36,6 +37,13 @@ namespace multicast_communication
         input.read( buf, size );
         return std::string( buf , size );
     }
+
+    static std::map< char, uint32_t > time_table;
+    static std::once_flag time_table_init_flag;
+
+    void init_time_table();
+
+    uint32_t get_seconds( const char data[3] );
 
 }
 
