@@ -19,10 +19,24 @@ namespace minute_market
         double open_prise;
         double high_prise;
         double low_price;
-        double close_prose;
+        double close_prise;
         double volume;
         double bid;
         double ask;
+
+        minute_datafeed() :
+            minute( 0u ),
+            stock_name(),
+            open_prise( 0.0 ),
+            high_prise( 0.0 ),
+            low_price ( 0.0 ),
+            close_prise( 0.0 ),
+            volume( 0.0 ),
+            bid( 0.0 ),
+            ask( 0.0 )
+        {
+
+        }
     };
 
 
@@ -33,7 +47,16 @@ namespace minute_market
         typedef std::function< void ( const minute_datafeed& ) > callback_type;
         callback_type callback_;
 
-        multicast_communication::thread_safe_queue< thre
+        //multicast_communication::thread_safe_queue< thre
+        enum
+        {
+            OPEN_TRADE,
+            CLOSE_TRADE,
+        };
+        void add_first_trade(  minute_datafeed& mdf, const trade_message_ptr& msg );
+        void add_trade(  minute_datafeed& mdf, const trade_message_ptr& msg );
+        void add_quote(  minute_datafeed& mdf, const quote_message_ptr& msg );
+
     public:
         minute_market_calculator( callback_type callback );
 
