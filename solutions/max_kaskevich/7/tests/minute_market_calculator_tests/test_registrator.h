@@ -1,6 +1,6 @@
 #include <boost/test/test_tools.hpp>
 
-namespace multicast_communication
+namespace minute_market
 {
     namespace tests_
     {

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include "market_data_processor.h"
 #include "thread_safe_queue.h"
+#include <mutex>
 
 
 
@@ -26,7 +27,7 @@ namespace minute_market
 
         minute_datafeed() :
             minute( 0u ),
-            stock_name(),
+            //stock_name(),
             open_prise( 0.0 ),
             high_prise( 0.0 ),
             low_price ( 0.0 ),
@@ -42,26 +43,54 @@ namespace minute_market
 
     class minute_market_calculator
     {
-        typedef std::unordered_map< std::string, minute_datafeed > stock_name_map_type;
+        typedef std::pair< std::unique_ptr< std::mutex >, minute_datafeed > safe_minute_datafeed;
+        typedef std::unordered_map< std::string, safe_minute_datafeed > stock_name_map_type;
         stock_name_map_type stock_name_map_;
         typedef std::function< void ( const minute_datafeed& ) > callback_type;
         callback_type callback_;
 
-        //multicast_communication::thread_safe_queue< thre
-        enum
-        {
-            OPEN_TRADE,
-            CLOSE_TRADE,
-        };
-        void add_first_trade(  minute_datafeed& mdf, const trade_message_ptr& msg );
-        void add_trade(  minute_datafeed& mdf, const trade_message_ptr& msg );
-        void add_quote(  minute_datafeed& mdf, const quote_message_ptr& msg );
+        boost::shared_mutex map_mtx_;
 
     public:
         minute_market_calculator( callback_type callback );
 
         void new_trade( const trade_message_ptr& );
         void new_quote( const quote_message_ptr& );
+
+        template< class MsgType>
+        void new_msg( MsgType msg,
+            std::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
+            std::function< void( minute_datafeed&, MsgType ) > msg_handler )
+        {
+            boost::upgrade_lock< boost::shared_mutex > read_lock( map_mtx_ );
+            stock_name_map_type::iterator it = stock_name_map_.find( msg->security_symbol() );
+
+            safe_minute_datafeed *smdf = NULL;
+
+            if( it == stock_name_map_.end() )
+            {
+                boost::upgrade_to_unique_lock< boost::shared_mutex > write_lock( read_lock );
+                it = stock_name_map_.emplace( msg->security_symbol(), safe_minute_datafeed() ).first;
+                it->second.first.reset( new std::mutex() );
+            }
+            smdf = &it->second;
+
+            if ( msg->time() > smdf->second.minute + 60 )
+            {
+                std::lock_guard< std::mutex > lock( *( smdf->first ) );                
+                if ( smdf->second.minute )
+                {
+                    callback_( smdf->second );
+                }
+                smdf->second = minute_datafeed();
+                first_msg_handler( smdf->second, msg );
+            }
+            else
+            {
+               std::lock_guard< std::mutex > lock( *( smdf->first ) );
+               msg_handler( smdf->second, msg );
+            }
+        }
     };
 }
 
