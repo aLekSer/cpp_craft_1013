@@ -31,7 +31,13 @@ void multicast_communication::udp_listener::socket_reload_()
 
     socket_.open( listen_endpoint_.protocol() );
     socket_.set_option( udp::socket::reuse_address( true ) );
-    socket_.bind( listen_endpoint_ );
+    boost::system::error_code er;
+    socket_.bind( listen_endpoint_, er );
+    if( er )
+    {
+        std::cout << "upd_listener(" << listen_endpoint_.port() << "):  " 
+            << er.value() << " - " << er.message() << std::endl;
+    }
     socket_.set_option( join_group( address::from_string( multicast_address_ ) ) );
 }
 void multicast_communication::udp_listener::register_listen_()
@@ -53,8 +59,8 @@ void multicast_communication::udp_listener::listen_handler_( const boost::system
         }
         else
         {
-            std::cout << "upd_listener error - " << error.value()
-                << ":" << error.message() << std::endl;
+            std::cout << "upd_listener(" << listen_endpoint_.port() << "):  " 
+                << error.value() << " - " << error.message() << std::endl;
         }
         return;
     }
