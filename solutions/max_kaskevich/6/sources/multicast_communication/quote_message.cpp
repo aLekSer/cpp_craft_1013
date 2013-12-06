@@ -1,5 +1,4 @@
 #include "quote_message.h"
-#include "common_message.h"
 #include <iomanip>
 #include <boost/algorithm/string.hpp>
 
@@ -126,36 +125,4 @@ std::ostream& multicast_communication::operator<<( std::ostream& output, quote_m
         << std::setprecision( 2 ) << msg.offer_price() << " "
         << std::setprecision( 1 ) << msg.offer_volume() << std::endl;
     return output;
-}
-
-bool multicast_communication::quote_message::parse_block(const std::string& block,
-                                                         quote_message_ptr_list& msgs)
-{
-    quote_message_ptr_list list;
-    std::istringstream input( block );
-    quote_message_ptr msg;
-    if( input.get() != 0x1 )
-    {
-        return false;
-    }
-    char c;
-    do 
-    {
-        msg.reset( new quote_message() );
-        input >> *( msg );
-        if (msg->type() != ANOTHER)
-        {
-            msgs.push_back( msg );
-        }
-
-        while (input >> c && c != 0x1F && c != 0x3 )
-        {}
-
-    } while ( input && c == 0x1F );
-
-    if( c != 0x3 )
-    {        
-        return false;
-    }
-    return true;
 }

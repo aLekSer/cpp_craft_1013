@@ -94,7 +94,7 @@ void multicast_communication::tests_::quote_message_tests()
         quote_message_ptr_list msgs;
         while ( quote_tests_::get_block( input, block ) )
         {
-            BOOST_CHECK_NO_THROW( quote_message::parse_block(block, msgs ); );
+            BOOST_CHECK_NO_THROW( parse_block( block, msgs ); );
         }
         BOOST_CHECK_EQUAL( input.eof(), true );
 

@@ -44,7 +44,7 @@ void multicast_communication::udp_listener::register_listen_()
 {
     using namespace boost::asio::placeholders;
     socket_.async_receive( boost::asio::buffer( buffer_.get(), buffer_size_ ), 
-    boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
+        boost::bind( &udp_listener::listen_handler_, this, error, bytes_transferred ) );
 }
 
 void multicast_communication::udp_listener::listen_handler_( const boost::system::error_code& error,

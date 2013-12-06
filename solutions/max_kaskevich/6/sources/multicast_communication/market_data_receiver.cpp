@@ -22,11 +22,6 @@ multicast_communication::market_data_receiver::~market_data_receiver(void)
     stop();
 }
 
-void service_run( std::shared_ptr< boost::asio::io_service > service )
-{
-    service->run();
-}
-
 void multicast_communication::market_data_receiver::start()
 {
     if ( working_ )
@@ -38,10 +33,10 @@ void multicast_communication::market_data_receiver::start()
     {
         service_ptr service ( new boost::asio::io_service() );
         udp_listener_ptr listener(
-            new udp_listener( quote_service_, port.first, port.second, [this](const std::string& block)
+            new udp_listener( quote_service_, port.first, port.second, [&](const std::string& block)
                 {
                     threads_.create_thread( boost::bind(
-                        &multicast_communication::market_data_receiver::quote_handler, this, block ) );
+                        &multicast_communication::market_data_receiver::quote_handler, this, block, port.second ) );
                 } ) );
         quote_udp_listeners_.push_back( listener );
     }
@@ -55,10 +50,10 @@ void multicast_communication::market_data_receiver::start()
     {
         service_ptr service ( new boost::asio::io_service() );
         udp_listener_ptr listener(
-            new udp_listener( trade_service_, port.first, port.second, [this](const std::string& block)
+            new udp_listener( trade_service_, port.first, port.second, [&](const std::string& block)
                 {
                     threads_.create_thread( boost::bind(
-                        &multicast_communication::market_data_receiver::trade_handler, this, block ) );
+                        &multicast_communication::market_data_receiver::trade_handler, this, block, port.second ) );
                 } ) );
         trade_udp_listeners_.push_back( listener );
     }
@@ -69,20 +64,28 @@ void multicast_communication::market_data_receiver::start()
     }
 }
 
-void multicast_communication::market_data_receiver::quote_handler( const std::string& block)
+void multicast_communication::market_data_receiver::quote_handler( const std::string& block,
+                                                                   unsigned short port )
 {
     quote_message_ptr_list msgs;
-    quote_message::parse_block( block, msgs );
+    if ( !parse_block( block, msgs ) )
+    {
+        std::cout << "market_data_receiver: bad block from " << port << std::endl;
+    }
     for( auto& msg: msgs )
     {
         processor_.new_quote( msg );
     }
 }
 
-void multicast_communication::market_data_receiver::trade_handler( const std::string& block)
+void multicast_communication::market_data_receiver::trade_handler( const std::string& block,
+                                                                   unsigned short port )
 {
     trade_message_ptr_list msgs;
-    trade_message::parse_block( block, msgs );
+    if ( !parse_block( block, msgs ) )
+    {
+        std::cout << "market_data_receiver: bad block from " << port << std::endl;
+    }
     for( auto& msg: msgs )
     {
         processor_.new_trade( msg );
