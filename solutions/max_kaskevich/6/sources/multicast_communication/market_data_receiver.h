@@ -10,10 +10,7 @@
 
 namespace multicast_communication
 {
-    typedef std::shared_ptr< udp_listener > udp_listener_ptr;
-    typedef std::shared_ptr< boost::asio::io_service > service_ptr;
     typedef std::vector< std::pair< std::string, unsigned short > > ports;
-
     class market_data_receiver
     {
     private:

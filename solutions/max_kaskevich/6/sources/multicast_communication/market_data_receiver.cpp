@@ -31,7 +31,6 @@ void multicast_communication::market_data_receiver::start()
     working_ = true;
     for( auto& port: quote_ports_ )
     {
-        service_ptr service ( new boost::asio::io_service() );
         udp_listener_ptr listener(
             new udp_listener( quote_service_, port.first, port.second, [&](const std::string& block)
                 {
@@ -48,7 +47,6 @@ void multicast_communication::market_data_receiver::start()
 
     for( auto& port: trade_ports_ )
     {
-        service_ptr service ( new boost::asio::io_service() );
         udp_listener_ptr listener(
             new udp_listener( trade_service_, port.first, port.second, [&](const std::string& block)
                 {
