@@ -38,7 +38,7 @@ namespace multicast_communication
     }
 
     template < class message_type >
-    bool parse_block( const std::string& block, std::list< boost::shared_ptr< message_type > > msgs )
+    bool parse_block( const std::string& block, std::list< boost::shared_ptr< message_type > >& msgs )
     {
         std::list< boost::shared_ptr< message_type > > list;
         std::istringstream input( block );
