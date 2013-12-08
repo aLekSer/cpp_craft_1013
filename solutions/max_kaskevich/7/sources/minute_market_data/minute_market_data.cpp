@@ -26,7 +26,9 @@ void minute_market::minute_market_data::on_minute_data_feed( const minute_datafe
     std::ofstream& output = outputs_[ data.stock_name ];
     if( !output.is_open() )
     {
-        std::string path = dir_path_ + data.stock_name;
+        std::string path = dir_path_ + "\\";
+        path += data.stock_name;
         output.open( path );
     }
+    output << data;
 }
