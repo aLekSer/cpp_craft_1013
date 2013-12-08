@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <list>
+#include "common_message.h"
 
 namespace multicast_communication
 {
@@ -63,8 +64,6 @@ namespace multicast_communication
         std::string security_symbol() const;
         double price() const;
         double volume() const;
-
-        static bool parse_block(const std::string& block, trade_message_ptr_list& msgs);
 
     private:
         std::string security_symbol_;

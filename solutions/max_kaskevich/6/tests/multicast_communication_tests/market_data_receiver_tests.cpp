@@ -63,7 +63,7 @@ void multicast_communication::tests_::write_quotes( const std::string& block, st
 {
     boost::mutex::scoped_lock lock( test_output_mtx );
     quote_message_ptr_list msgs;
-    BOOST_CHECK_NO_THROW ( quote_message::parse_block( block, msgs ); )
+    BOOST_CHECK_NO_THROW ( parse_block( block, msgs ); )
     for( auto msg: msgs )
     {
         BOOST_CHECK_NO_THROW( test_output << *( msg ); )
@@ -73,7 +73,7 @@ void multicast_communication::tests_::write_trades( const std::string& block, st
 {
     boost::mutex::scoped_lock lock( test_output_mtx );
     trade_message_ptr_list msgs;
-    BOOST_CHECK_NO_THROW (  trade_message::parse_block( block, msgs ); )
+    BOOST_CHECK_NO_THROW (  parse_block( block, msgs ); )
     for( auto msg: msgs )
     {
         BOOST_CHECK_NO_THROW( test_output << *( msg ); )
@@ -133,14 +133,14 @@ void multicast_communication::tests_::market_data_receiver_tests()
         quote_ports.push_back( std::make_pair( "233.200.79.6", 61006 ) );
         quote_ports.push_back( std::make_pair( "233.200.79.7", 61007 ) );
         ports trade_ports;
-        trade_ports.push_back( std::make_pair( "233.200.79.128", 62128 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.129", 62129 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.130", 62130 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.131", 62131 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.132", 62132 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.133", 62133 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.134", 62134 ) );
-        trade_ports.push_back( std::make_pair( "233.200.79.135", 62135 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.128", 64128 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.129", 64129 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.130", 64130 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.131", 64131 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.132", 64132 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.133", 64133 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.134", 64134 ) );
+        trade_ports.push_back( std::make_pair( "233.200.79.135", 64135 ) );
         market_data_receiver receiver( 16, 16, trade_ports, quote_ports, writer );
 
         boost::thread_group test_threads;

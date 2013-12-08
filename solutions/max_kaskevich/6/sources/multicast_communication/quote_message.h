@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <list>
+#include "common_message.h"
 
 namespace multicast_communication
 {
@@ -71,8 +72,6 @@ namespace multicast_communication
             return header.time();
         }
         
-        static bool parse_block(const std::string& block, quote_message_ptr_list& msgs);
-
     private:
         std::string security_symbol_;
         double bid_price_;

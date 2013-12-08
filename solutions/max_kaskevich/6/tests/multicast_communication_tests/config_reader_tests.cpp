@@ -1,9 +1,11 @@
 #include "test_registrator.h"
 #include "config_reader.h"
 #include <fstream>
+#include <clocale>
 
 void multicast_communication::tests_::config_reader_tests()
 {
+    std::setlocale( LC_ALL, "" );
     BOOST_CHECK_NO_THROW( config_reader config; )
     config_reader config;
     config.read( std::ifstream( TEST_DATA_DIR "/config.ini" ) );

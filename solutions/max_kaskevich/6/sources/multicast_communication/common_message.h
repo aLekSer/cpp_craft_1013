@@ -38,12 +38,57 @@ namespace multicast_communication
         return std::string( buf , size );
     }
 
+    template < class message_type >
+    bool parse_block( const std::string& block, std::list< boost::shared_ptr< message_type > > msgs )
+    {
+        std::list< boost::shared_ptr< message_type > > list;
+        std::istringstream input( block );
+        boost::shared_ptr< message_type > msg;
+        if( input.get() != 0x1 )
+        {
+            return false;
+        }
+        char c;
+        do 
+        {
+            msg.reset( new message_type() );
+            try
+            {
+                input >> *( msg );
+                if ( msg->type() != message_type::ANOTHER )
+                {
+                    msgs.push_back( msg );
+                }
+            }
+            catch ( std::out_of_range& )
+            {
+                return false;
+            }
+            catch ( boost::bad_lexical_cast& )
+            {
+                return false;
+            }
+
+            while ( input >> c && c != 0x1F && c != 0x3 )
+            {}
+
+        } while ( input && c == 0x1F );
+
+        if( c != 0x3 )
+        {        
+            return false;
+        }
+        return true;
+    }
+
     static std::map< char, uint32_t > time_table;
     static std::once_flag time_table_init_flag;
 
     void init_time_table();
 
     uint32_t get_seconds( const char data[3] );
+
+
 
 }
 

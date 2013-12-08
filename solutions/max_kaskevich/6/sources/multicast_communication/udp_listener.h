@@ -39,6 +39,8 @@ namespace multicast_communication
         void register_listen_();
         void listen_handler_( const boost::system::error_code& error, const size_t bytes_received );
     };
+
+    typedef std::shared_ptr< udp_listener > udp_listener_ptr;
 }
 
 #endif // _ASYNC_UDP_UDP_LISTENER_H_

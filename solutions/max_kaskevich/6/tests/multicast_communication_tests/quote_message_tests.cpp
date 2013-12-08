@@ -97,10 +97,36 @@ void multicast_communication::tests_::quote_message_tests()
         quote_message_ptr_list msgs;
         while ( quote_tests_::get_block( input, block ) )
         {
-            BOOST_CHECK_NO_THROW( quote_message::parse_block(block, msgs ); );
+            BOOST_CHECK_NO_THROW( parse_block( block, msgs ); );
         }
         BOOST_CHECK_EQUAL( input.eof(), true );
 
+    }
+
+    {
+        std::istringstream input("\x1" "EDEO A  003759032T:J_073ADMR  Z00004147006 B00004148004 12" "\x3");
+        std::string block;
+        quote_message_ptr_list msgs;
+        bool res = true;
+        BOOST_CHECK_NO_THROW( res = parse_block( block, msgs ); );
+        BOOST_CHECK_EQUAL( res, false );    
+    }
+
+    {
+        std::istringstream input("\x1" "EDEO A  003759032T:J_073ADMR  B0000sdf7006 B00004148004 12" "\x3");
+        std::string block;
+        quote_message_ptr_list msgs;
+        bool res = true;
+        BOOST_CHECK_NO_THROW( res = parse_block( block, msgs ); );
+        BOOST_CHECK_EQUAL( res, false );    
+    }
+    {
+        std::istringstream input("\x1""\x3");
+        std::string block;
+        quote_message_ptr_list msgs;
+        bool res = true;
+        BOOST_CHECK_NO_THROW( res = parse_block( block, msgs ); );
+        BOOST_CHECK_EQUAL( res, false );    
     }
 
 }
