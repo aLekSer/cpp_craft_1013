@@ -35,10 +35,11 @@ namespace minute_market
             bid( 0.0 ),
             ask( 0.0 )
         {
-
+            memset(&stock_name[0], 0, sizeof(stock_name));
         }
     };
 
+    std::ostream& operator<<( std::ostream& output, const minute_datafeed& mdf );
 
     class minute_market_calculator
     {

@@ -46,3 +46,17 @@ void minute_market::minute_market_calculator::new_quote( const quote_message_ptr
     new_msg< const quote_message_ptr& >( msg, add_quote, add_quote );
 }
 
+std::ostream& minute_market::operator<<( std::ostream& output, const minute_datafeed& mdf )
+{
+    output.write( reinterpret_cast< const char* >( &mdf.minute ), sizeof( mdf.minute) );
+    output.write( mdf.stock_name, 16 );
+    output.write( reinterpret_cast< const char* >( &mdf.open_prise ), sizeof( mdf.open_prise) );
+    output.write( reinterpret_cast< const char* >( &mdf.high_prise ), sizeof( mdf.high_prise) );
+    output.write( reinterpret_cast< const char* >( &mdf.low_price ), sizeof( mdf.low_price) );
+    output.write( reinterpret_cast< const char* >( &mdf.close_prise ), sizeof( mdf.close_prise) );
+    output.write( reinterpret_cast< const char* >( &mdf.volume ), sizeof( mdf.volume) );
+    output.write( reinterpret_cast< const char* >( &mdf.bid ), sizeof( mdf.bid) );
+    output.write( reinterpret_cast< const char* >( &mdf.ask ), sizeof( mdf.ask) );
+    return output;
+}
+
