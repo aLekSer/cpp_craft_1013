@@ -24,7 +24,6 @@ void add_trade( minute_datafeed& mdf, const trade_message_ptr& msg )
 void add_first_trade( minute_datafeed& mdf, const trade_message_ptr& msg )
 {
     mdf.open_prise = msg->price();
-    mdf.minute = msg->time();
     mdf.high_prise = std::numeric_limits< double >::min();
     mdf.low_price = std::numeric_limits< double >::max();
     add_trade( mdf, msg );
@@ -38,12 +37,20 @@ void add_quote( minute_datafeed& mdf, const quote_message_ptr& msg)
 
 void minute_market::minute_market_calculator::new_trade( const trade_message_ptr& msg )
 {
-    new_msg< const trade_message_ptr& >( msg, add_first_trade, add_trade );
+    new_msg< const trade_message_ptr& >( msg, add_trade, add_first_trade,
+        []( const minute_datafeed& mdf ) -> bool
+        {
+            return mdf.open_prise == 0.0;
+        });
 }
 
 void minute_market::minute_market_calculator::new_quote( const quote_message_ptr& msg)
 {
-    new_msg< const quote_message_ptr& >( msg, add_quote, add_quote );
+    new_msg< const quote_message_ptr& >( msg, add_quote, add_quote,
+        []( const minute_datafeed& mdf ) -> bool
+        {
+            return mdf.bid == 0.0;
+        });
 }
 
 std::ostream& minute_market::operator<<( std::ostream& output, const minute_datafeed& mdf )

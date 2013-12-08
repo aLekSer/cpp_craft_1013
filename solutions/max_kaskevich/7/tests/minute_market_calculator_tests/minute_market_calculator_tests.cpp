@@ -13,7 +13,7 @@ using namespace multicast_communication;
 
     {
         bool callback_checked = false;
-        minute_market_calculator calc([&]( const minute_datafeed& mdf )
+        minute_market_calculator calc( [&]( const minute_datafeed& mdf )
         {
             BOOST_CHECK_EQUAL( mdf.close_prise, 77.9 );
             BOOST_CHECK_EQUAL( mdf.open_prise, 77.9 );
@@ -23,7 +23,9 @@ using namespace multicast_communication;
             BOOST_CHECK_EQUAL( mdf.minute, 36225u );
             BOOST_CHECK_EQUAL( mdf.bid, 41.47 );
             BOOST_CHECK_EQUAL( mdf.ask, 41.48 );
-
+            std::ostringstream output;
+            BOOST_CHECK_NO_THROW( output << mdf; )
+            BOOST_CHECK_EQUAL( output.str().length(), 76 );
             callback_checked = true;
         });
 
@@ -49,5 +51,8 @@ using namespace multicast_communication;
         BOOST_CHECK_EQUAL( callback_checked, false );
         calc.new_trade( tm2 );
         BOOST_CHECK_EQUAL( callback_checked, true );
+
+
+
     }
  }
