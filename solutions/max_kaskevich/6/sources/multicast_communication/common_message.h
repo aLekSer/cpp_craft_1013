@@ -54,7 +54,7 @@ namespace multicast_communication
             try
             {
                 input >> *( msg );
-                if (msg->type() != message_type::ANOTHER)
+                if ( msg->type() != message_type::ANOTHER )
                 {
                     msgs.push_back( msg );
                 }
@@ -68,7 +68,7 @@ namespace multicast_communication
                 return false;
             }
 
-            while (input >> c && c != 0x1F && c != 0x3 )
+            while ( input >> c && c != 0x1F && c != 0x3 )
             {}
 
         } while ( input && c == 0x1F );
