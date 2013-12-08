@@ -11,7 +11,7 @@
     using boost::unit_test_framework::test_case;
     boost::unit_test_framework::test_suite& master_test_suite = boost::unit_test::framework::master_test_suite();
 
-    using namespace multicast_communication::tests_;
+    using namespace minute_market::tests_;
 
     master_test_suite.add( BOOST_TEST_CASE( &minute_market_data_tests ) );
 

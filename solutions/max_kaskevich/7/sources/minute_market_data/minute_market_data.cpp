@@ -4,7 +4,8 @@
 
 minute_market::minute_market_data::minute_market_data( const std::string& dir_path ) :
     dir_path_( dir_path ),
-    calculator_( on_minute_data_feed )
+//    calculator_( boost::bind( &minute_market::minute_market_data::on_minute_data_feed, this ) )
+    calculator_( [this] (const minute_datafeed& data){ this->on_minute_data_feed( data ); } )
 {
         
 }

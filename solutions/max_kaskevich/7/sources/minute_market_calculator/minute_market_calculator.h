@@ -4,8 +4,7 @@
 #include <stdint.h>
 #include <unordered_map>
 #include "market_data_processor.h"
-#include "thread_safe_queue.h"
-#include <mutex>
+#include <boost/thread.hpp>
 
 
 
@@ -46,7 +45,7 @@ namespace minute_market
         typedef std::pair< std::unique_ptr< std::mutex >, minute_datafeed > safe_minute_datafeed;
         typedef std::unordered_map< std::string, safe_minute_datafeed > stock_name_map_type;
         stock_name_map_type stock_name_map_;
-        typedef std::function< void ( const minute_datafeed& ) > callback_type;
+        typedef boost::function< void ( const minute_datafeed& ) > callback_type;
         callback_type callback_;
 
         boost::shared_mutex map_mtx_;
@@ -59,8 +58,8 @@ namespace minute_market
 
         template< class MsgType>
         void new_msg( MsgType msg,
-            std::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
-            std::function< void( minute_datafeed&, MsgType ) > msg_handler )
+            boost::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
+            boost::function< void( minute_datafeed&, MsgType ) > msg_handler )
         {
             boost::upgrade_lock< boost::shared_mutex > read_lock( map_mtx_ );
             stock_name_map_type::iterator it = stock_name_map_.find( msg->security_symbol() );
