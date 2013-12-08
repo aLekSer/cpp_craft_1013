@@ -168,6 +168,7 @@ void multicast_communication::tests_::market_data_receiver_tests()
         using boost::filesystem::file_size;
         using boost::filesystem::path;
         BOOST_CHECK_EQUAL( file_size( test_ouput_path ), file_size( async_writer_path ) );
+        BOOST_CHECK_EQUAL( file_size( test_ouput_path ) > 0, true );
         //boost::filesystem::remove( path( test_ouput_path ) );
         //boost::filesystem::remove( path( async_writer_path ) );
     //)
