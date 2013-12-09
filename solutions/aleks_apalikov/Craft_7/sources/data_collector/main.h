@@ -51,8 +51,7 @@ void start_sending()
 	for (iter i = c.get_trades().begin(); i != c.get_trades().end(); ++i )
 	{
 		trades.push_back( endpoint(address::from_string( i->first ), i->second ));
-		trade_files.push_back(new ifstream ( ) );
-		trade_files.back()->open(string(data_path + i->first + ".udp").c_str());
+		trade_files.push_back(new ifstream ( string(data_path + i->first + ".udp").c_str()) );
 	}
 	vector<endpoint> quotes;
 	vec_ifstr quote_files;
@@ -60,7 +59,6 @@ void start_sending()
 	{
 		quotes.push_back( endpoint(address::from_string( q->first ), q->second ));
 		quote_files.push_back(new ifstream (string(data_path + q->first + ".udp").c_str() ) );
-		quote_files.back()->open(string(data_path + q->first + ".udp").c_str());
 	}
 
 	while (!all_empty(quote_files, trade_files))
