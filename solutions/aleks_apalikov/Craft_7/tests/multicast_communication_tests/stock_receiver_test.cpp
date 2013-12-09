@@ -40,6 +40,25 @@ void clear_files(vec_ifstr & tr, vec_ifstr & q)
 void async_udp::receiver_test()
 {
 	{
+		stock_receiver sr("results2.txt");
+		boost::asio::io_service service;
+		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.0" ), 61000 ); 
+		boost::asio::ip::udp::socket socket( service, endp.protocol() );
+
+		stringstream ss;
+		ss << "\x01" << "EBEO A  003759557N:J_735AVB             0    AAAR B30000012127000000001D0000012137000000001     A   62TB00012130001 BB00012137001"
+			<<"\x1f" << "EDEO A  003759121P:J_428AINR  D00352000001 F00354300001 02"
+			<<"\x1f" << "LDEO A  003759122N:J_432ALJR  F00124900003 D00125100001 02" << "\x03";
+		string str = ss.str();
+		socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
+		while( sr.wait_some_data() == -1 )
+		{
+			socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
+			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 100 ) );
+		}
+		sr.stop();
+	}
+	{
 		cout << data_path << endl;
 		stock_receiver sr;
 		boost::asio::io_service service;
@@ -100,25 +119,7 @@ void async_udp::receiver_test()
 			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 1 ) );
 		}
 	}
-	{
-		stock_receiver sr("results2.txt");
-		boost::asio::io_service service;
-		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.128" ), 62128 ); 
-		boost::asio::ip::udp::socket socket( service, endp.protocol() );
-
-		stringstream ss;
-		ss << "\x01""EBEO A  003759557N:J_735AVB             0    AAAR B30000012127000000001D0000012137000000001     A   62TB00012130001 BB00012137001 "
-			<<"\x1f""EDEO A  003759121P:J_428AINR  D00352000001 F00354300001 02"
-			<<"\x1f""LDEO A  003759122N:J_432ALJR  F00124900003 D00125100001 02""\x03";
-		string str = ss.str();
-		socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
-		while( sr.wait_some_data() == -1 )
-		{
-			socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
-			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 100 ) );
-		}
-		sr.stop();
-	}
+	
 
 }
 

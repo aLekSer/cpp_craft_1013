@@ -75,11 +75,14 @@ int stock_receiver::wait_some_data()
 		if (trade_listeners[i]->messages().size() > 0 )
 		{
 			vector_messages msgs;
-			boost::mutex::scoped_lock lock (trade_listeners[i]->protect_messages() );
-			message::divide_messages(msgs, 
-				trade_listeners[i]->messages_pop() , false);
-			processor.wr_trades(msgs);
-			ret_val = static_cast<int>( i );
+			boost::shared_ptr<string> str;
+			{
+				boost::mutex::scoped_lock lock (trade_listeners[i]->protect_messages() );
+				str = trade_listeners[i]->messages_pop() ;
+			}
+			message::divide_messages(msgs, str, false);
+			if(processor.wr_trades(msgs) != 0)
+				ret_val = static_cast<int>( i );
 			break;
 		}
 	}
@@ -88,11 +91,15 @@ int stock_receiver::wait_some_data()
 		if (quote_listeners[i]->messages().size() > 0 )
 		{
 			vector_messages msgs;
-			boost::mutex::scoped_lock lock (quote_listeners[i]->protect_messages() );
-			message::divide_messages(msgs, 
-				quote_listeners[i]->messages_pop() , true);
-			processor.wr_quotes(msgs);
-			return static_cast<int>( i );
+			boost::shared_ptr<string> str;
+			{
+				boost::mutex::scoped_lock lock (quote_listeners[i]->protect_messages() );
+				str = quote_listeners[i]->messages_pop();
+			}
+			message::divide_messages(msgs,  str, true);
+			if(processor.wr_quotes(msgs) != 0)
+				return static_cast<int>( i );
+			else return ret_val;
 		}
 	}
 	processor.flush();

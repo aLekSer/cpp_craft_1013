@@ -2,8 +2,11 @@
 #include <stdexcept>
 
 int message::counter = 0;
-message::message_category message::read_category() 
+message::message_category message::read_header()
 {
+	streamoff cur_pos = inp.tellg();
+	if(inp.peek() == EOF)
+		return end_reached;
 	byte ch = 0;
 	try
 	{
@@ -18,17 +21,26 @@ message::message_category message::read_category()
 		return end_reached;		
 	}
 	get_byte(ch);
-	bool test = (ch == start);
+	bool test = (ch == start) || (ch == unit_separator);
 	counter ++ ; // total delim:start 's
 	place = 0;
 	get_byte(ch);
 	if((ch == bond)||(ch == equity)||(ch == local_issue))
 	{
 		categ = (message_category)ch;
-		return categ;
 	}
 	else 
 		return end_reached;
+
+	byte b;
+	get_byte(b); 
+	typ = (message_type) b;
+	inp.seekg(cur_pos + time_stamp + 1); //1 - start byte 0x1
+	read_binary(inp, hour_minute);
+	get_byte( sec_ );
+	inp.seekg(cur_pos + header_len + 1);
+
+	return categ;
 
 }
 
@@ -39,10 +51,13 @@ message* message::read()
 		throw std::logic_error("Read only one time");
 	}
 	try{
-	if(read_category() == -1) 
-		return NULL;
-	parse_rest();
-	return this;
+		if(read_header() == -1) 
+		{
+			categ = end_reached;
+			return NULL;
+		}
+		parse_rest();
+		return this;
 	}
 	catch( std::exception e )
 	{
@@ -88,7 +103,7 @@ void message::read_block( stringstream& ss, ifstream& fs )
 		read_binary(fs, c);
 		write_binary(ss, c);
 	}
-	while (c != delim::end && fs.peek() != EOF)
+	while (c != end_of_text && fs.peek() != EOF) /*delim::*/
 	{
 		read_binary(fs, c);
 		write_binary(ss, c);
@@ -135,7 +150,7 @@ void message::divide_messages( vector_messages& vec_msgs, boost::shared_ptr<std:
 			{
 				current_message << *it;
 				boost::shared_ptr<message> sm;
-				if((*it == unit_separator) || (*it == delim::end))
+				if((*it == unit_separator) || (*it == end_of_text))
 				{
 					if(quotes)
 					{
@@ -185,12 +200,9 @@ int quote::parse_rest()
 	{
 		return -1;
 	}
-	byte b;
-	get_byte(b); 
-	typ = (message_type) b;
-	map<char, int>::const_iterator i = sec_len.find(b);
-	if((i != sec_len.end()) && b != 'I')
-		get_string(security_symbol_, header_len - place, i->second);
+	map<char, int>::const_iterator i = sec_len.find(typ);
+	if((i != sec_len.end()) && typ != 'I')
+		get_string(security_symbol_, 0, i->second);
 	else return -1;
 	string st;
 	const quote::quote_t* cur_trade;
@@ -257,12 +269,9 @@ int trade::parse_rest()
 	{
 		return -1;
 	}
-	byte b;
-	get_byte(b); 
-	typ = (message_type) b;
-	map<char, int>::const_iterator i = sec_len.find(b);
-	if((i != sec_len.end()) && b != 'D')
-		get_string(security_symbol_, header_len - place, i->second);
+	map<char, int>::const_iterator i = sec_len.find(typ);
+	if((i != sec_len.end()) && typ != 'D')
+		get_string(security_symbol_, 0, i->second);
 	else return -1;
 	string st;
 	const trade::trade_t* cur_trade;

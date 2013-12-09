@@ -16,7 +16,7 @@ enum delim
 {
 	start = 0x01,
 	unit_separator = 0x1F,
-	end = 0x03
+	end_of_text = 0x03
 };
 class message;
 typedef vector<boost::shared_ptr<message>> vector_messages;
@@ -57,10 +57,13 @@ protected:
 		short_trade = 'I'
 	};
 	enum {
+		time_stamp = 18,
 		header_len = 24 //security_symbol start
 	};
 
 	message_type typ;
+	uint16_t hour_minute;
+	byte sec_;
 public:
 	static void divide_messages(  vector_messages& vec_msgs, boost::shared_ptr<std::string> buffer,
 		const bool quotes);
@@ -71,6 +74,14 @@ public:
 	message_type get_type()
 	{
 		return typ;
+	}
+	uint16_t get_time()
+	{
+		return hour_minute;
+	}
+	uint32_t sec()
+	{
+		return (hour_minute >> 8) * 3600  + ( hour_minute | 0xFF ) + sec_;
 	}
 	static double denominator(char code)
 	{
@@ -113,7 +124,7 @@ public:
 		categ = empty;
 
 	}
-	message_category read_category(); //search for listed above message_category
+	message_category read_header(); //search for listed above message_category
 private:
 	message* read(); //invoke only one time, after throw exception error already read
 					//it is used in divide and tests

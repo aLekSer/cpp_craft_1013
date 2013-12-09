@@ -16,12 +16,12 @@ class market_data_processor
 public:
 	market_data_processor( char * str = "")
 	{
-		string fileName;
-		string def = data_path + "results.txt";
+		string fileName = data_path;
+		string def = "results.txt";
 		if(strlen(str) == 0 ) 
-			fileName = def;
+			fileName += def;
 		else 
-			fileName = str;
+			fileName += str;
 		outp.open( fileName.c_str() );
 		if(outp.is_open())
 			cout << "processor opened file"<<endl;

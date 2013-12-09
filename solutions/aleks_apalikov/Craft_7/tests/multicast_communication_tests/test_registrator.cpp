@@ -16,7 +16,7 @@
 	master_test_suite.add( BOOST_TEST_CASE( &async_udp::receiver_test) );
 //	master_test_suite.add( BOOST_TEST_CASE( &udp_listener_tests ) );
 //	master_test_suite.add( BOOST_TEST_CASE( &text_test::read_config ) );
-//	master_test_suite.add( BOOST_TEST_CASE( &text_test::quote_trade_parse ) );
+	master_test_suite.add( BOOST_TEST_CASE( &text_test::quote_trade_parse ) );
 
 #ifdef RUN_PERFORMANCE_TESTS
 #endif
