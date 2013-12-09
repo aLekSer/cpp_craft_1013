@@ -319,3 +319,4 @@ void trade::parse(const trade::trade_t* cur_trade )
 	get_string(s, 0, cur_trade->vol_len);
 	volume_ = boost::lexical_cast<double> (s);
 }
+

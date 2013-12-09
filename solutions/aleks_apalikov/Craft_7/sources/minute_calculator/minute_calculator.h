@@ -7,6 +7,7 @@
 #include "../multicast_communication/message_parser.h"
 #include <vector>
 #include <stdint.h>
+#include "boost/shared_ptr.hpp"
 
 
 struct minute_extremums
@@ -31,12 +32,13 @@ typedef vector<trade> vec_tr;
 typedef vector<quote> vec_q;
 class minute_calculator
 {
-	minute_extremums vals;
-	vec_tr trades;
+	boost::shared_ptr<minute_extremums> vals;
+	vec_tr trades; //try to add thread safe queue to read at both ends or use pipes
 	vec_q quotes;
 	boost::mutex calc_mtx;
 	bool uninit;
 	uint32_t minute;
+	void send_data(boost::shared_ptr<minute_extremums>); //send to market_data
 public:
 	minute_calculator()
 	{

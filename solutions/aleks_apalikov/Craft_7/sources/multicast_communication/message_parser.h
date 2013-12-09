@@ -85,6 +85,12 @@ public:
 	{
 		return t.hour_minute;
 	}
+
+	uint32_t minute()
+	{
+		return (get_time() >> 8) * 60 + get_time() | 0xFF;
+	}
+
 	void read_time()
 	{
 		char ch1, ch2;
@@ -108,7 +114,7 @@ public:
 		}
 	}
 
-	uint32_t msec ()
+	uint32_t msec()
 	{
 		return ((t.hour_minute >> 8) * 3600  + ( t.hour_minute | 0xFF ) + t.sec_) * 1000 + t.ms;
 	}
@@ -134,7 +140,7 @@ public:
 		return (double) denoms[code];
 	}
 	static int counter;
-	message(): inp(cin) // not neccessary construct
+	message(): inp(cin) // not necessary construct
 	{
 		categ = empty;
 	}

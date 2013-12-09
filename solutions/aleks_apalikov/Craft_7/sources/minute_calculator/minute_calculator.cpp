@@ -4,36 +4,42 @@ void minute_calculator::push_trade( const boost::shared_ptr<trade> trad )
 {
 	if(uninit)
 	{
-		minute = (trad->get_time() >> 8) * 60 + trad->get_time() | 0xFF;
+		minute = trad->minute();
 		uninit = true;
+		vals->volume = 0;
 	}
-	if(trad->get_time() > minute)
+	if(trad->minute() == minute)
 	{
 		minute = trad->get_time();
-		strcpy(vals.stock_name, trad->security_symbol().c_str());
-		if(trad->msec() < vals.first_msec)
+		strcpy(vals->stock_name, trad->security_symbol().c_str());
+		if(trad->msec() < vals->first_msec)
 		{
-			vals.first_msec = trad->msec();
-			vals.open_price = trad->price();
+			vals->first_msec = trad->msec();
+			vals->open_price = trad->price();
 		}
-		if(trad->msec() < vals.last_msec)
+		if(trad->msec() < vals->last_msec)
 		{
-			vals.last_msec = trad->msec();
-			vals.close_price = trad->price();
+			vals->last_msec = trad->msec();
+			vals->close_price = trad->price();
 		}
-		if(trad->price() < vals.low_price)
+		if(trad->price() < vals->low_price)
 		{
-			vals.low_price = trad->price();
+			vals->low_price = trad->price();
 		}
-		if(trad->price() > vals.high_price)
+		if(trad->price() > vals->high_price)
 		{
-			vals.high_price = trad->price();
+			vals->high_price = trad->price();
 		}
-		vals.volume = trad->volume();
-		for(vec_tr::iterator i = trades.begin(); i != trades.end(); i++)
-		{
-
-		}
+		vals->volume = trad->volume();
+	}
+	else if(trad->minute() > minute)
+	{
+		minute = trad->minute();
+		boost::shared_ptr<minute_extremums> shared_stats;
+		shared_stats = vals;
+		send_data(shared_stats);
+		vals.reset(new minute_extremums);
+		push_trade(trad);
 	}
 }
 
@@ -41,12 +47,31 @@ void minute_calculator::push_quote( const boost::shared_ptr<quote> quot )
 {
 	if(uninit)
 	{
-		minute = (quot->get_time() >> 8) * 60 + quot->get_time() | 0xFF;
+		minute = quot->minute();
 		uninit = true;
+		vals->bid = 0;
+		vals->ask = 0;
 	}
-	if(quot->get_time() > minute)
+	if(quot->minute() == minute)
 	{
 		minute = quot->get_time();
+		strcpy(vals->stock_name, quot->security_symbol().c_str());
+		vals->bid += quot->bid_volume(); 
+		vals->ask += quot->offer_volume();
+
 	}
+	else if(quot->minute() > minute)
+	{
+		minute = quot->minute();
+		boost::shared_ptr<minute_extremums> shared_stats;
+		shared_stats = vals;
+		send_data(shared_stats);
+		vals.reset(new minute_extremums);
+		push_quote(quot);
+	}
+}
+
+void minute_calculator::send_data( boost::shared_ptr<minute_extremums> ) 
+{
 
 }
