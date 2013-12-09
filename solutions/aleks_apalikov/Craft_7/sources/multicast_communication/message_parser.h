@@ -25,6 +25,12 @@ void read_binary( std::istream& in, T& t, const size_t len = sizeof( T ) )
 {
 	in.read( reinterpret_cast< char* >( &t ), len );
 }
+
+struct times {
+	uint16_t hour_minute;
+	byte sec_;
+	uint16_t ms;
+};
 template< class T >
 void write_binary( std::ostream& out, T& t, const size_t len = sizeof( T ) )
 {
@@ -58,12 +64,12 @@ protected:
 	};
 	enum {
 		time_stamp = 18,
-		header_len = 24 //security_symbol start
+		header_len = 24, //security_symbol start
+		code_ts = 0x29
 	};
 
 	message_type typ;
-	uint16_t hour_minute;
-	byte sec_;
+	times t;
 public:
 	static void divide_messages(  vector_messages& vec_msgs, boost::shared_ptr<std::string> buffer,
 		const bool quotes);
@@ -77,11 +83,34 @@ public:
 	}
 	uint16_t get_time()
 	{
-		return hour_minute;
+		return t.hour_minute;
 	}
-	uint32_t sec()
+	void read_time()
 	{
-		return (hour_minute >> 8) * 3600  + ( hour_minute | 0xFF ) + sec_;
+		char ch1, ch2;
+		get_char(ch1) ;
+		get_char(ch2) ;
+		t.hour_minute = ((ch1 - code_ts) << 8) + (ch2 - code_ts); // code_ts == ')'
+		get_byte(t.sec_);
+		t.sec_ -= code_ts;
+
+		read_ms();
+	}
+	void read_ms()
+	{
+		char ch;
+		get_char(ch) ;
+		t.ms = ch;
+		for(int i = 0; i != 2; i++)
+		{
+			get_char(ch) ;
+			t.ms = t.ms * 10 + ch;
+		}
+	}
+
+	uint32_t msec ()
+	{
+		return ((t.hour_minute >> 8) * 3600  + ( t.hour_minute | 0xFF ) + t.sec_) * 1000 + t.ms;
 	}
 	static double denominator(char code)
 	{

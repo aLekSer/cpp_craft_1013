@@ -36,8 +36,7 @@ message::message_category message::read_header()
 	get_byte(b); 
 	typ = (message_type) b;
 	inp.seekg(cur_pos + time_stamp + 1); //1 - start byte 0x1
-	read_binary(inp, hour_minute);
-	get_byte( sec_ );
+	read_time();
 	inp.seekg(cur_pos + header_len + 1);
 
 	return categ;

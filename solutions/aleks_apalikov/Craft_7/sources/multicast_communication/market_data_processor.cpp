@@ -6,7 +6,7 @@ int market_data_processor::wr_trade( shared_trade trad )
 	{
 		cout<< "market_data_processor error" << endl;
 	}
-	outp << "T " << std::fixed << trad->security_symbol() << " " << trad->sec() << " "
+	outp << "T " << std::fixed << trad->security_symbol() << " " << trad->msec() << " "
 		<< std::setprecision(2) << ( trad->price() / trad->denom()) << " "
 		<< std::setprecision(1) << trad->volume() << std::endl;
 	return 0;
@@ -18,7 +18,7 @@ int market_data_processor::wr_quote( shared_quote quot )
 	{
 		cout<< "market_data_processor error" << endl;
 	}
-	outp << "Q " << std::fixed << quot->security_symbol() << " " << quot->sec() << " "
+	outp << "Q " << std::fixed << quot->security_symbol() << " " << quot->msec() << " "
 		<< std::setprecision(2) << ( quot->bid_price() / quot->bid_denom() ) << " "
 		<< std::setprecision(1) << quot->bid_volume()  << " " 
 		<< std::setprecision(2) << ( quot->offer_price() / quot->offer_denom() ) << " "
