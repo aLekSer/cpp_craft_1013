@@ -62,23 +62,29 @@ namespace minute_market
             std::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
             std::function< bool( const minute_datafeed& ) > is_first_msg_for )
         {
-            boost::upgrade_lock< boost::shared_mutex > read_lock( map_mtx_ );
-            stock_name_map_type::iterator it = stock_name_map_.find( msg->security_symbol() );
-
-            safe_minute_datafeed *smdf = NULL;
+            stock_name_map_type::iterator it;
+            {
+                boost::shared_lock< boost::shared_mutex > read_lock( map_mtx_ );
+                it = stock_name_map_.find( msg->security_symbol() );
+            }
 
             if( it == stock_name_map_.end() )
             {
-                boost::upgrade_to_unique_lock< boost::shared_mutex > write_lock( read_lock );
-                it = stock_name_map_.emplace( msg->security_symbol(), safe_minute_datafeed() ).first;
-                it->second.first.reset( new std::mutex() );
+                boost::unique_lock< boost::shared_mutex > write_lock( map_mtx_ );
+                auto res = stock_name_map_.emplace( msg->security_symbol(), safe_minute_datafeed() );
+                it = res.first;
+                if ( res.second )
+                {
+                    it->second.first.reset( new std::mutex() );
+                }
             }
-            smdf = &it->second;
 
-            minute_datafeed& mdf =  smdf->second;
+            safe_minute_datafeed& smdf = it->second;
+            minute_datafeed& mdf =  smdf.second;
+
             if ( msg->time() >= mdf.minute + 60 )
             {
-                std::lock_guard< std::mutex > lock( *( smdf->first ) );                
+                std::lock_guard< std::mutex > lock( *( smdf.first ) );                
                 if ( mdf.minute )
                 {
                     callback_( mdf );
@@ -89,7 +95,7 @@ namespace minute_market
             }
             else if ( msg->time() >= mdf.minute )
             {
-               std::lock_guard< std::mutex > lock( *( smdf->first ) );
+               std::lock_guard< std::mutex > lock( *( smdf.first ) );
                if ( is_first_msg_for( mdf ) )
                {
                    first_msg_handler( mdf, msg );
