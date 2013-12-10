@@ -35,6 +35,7 @@ void text_test::quote_trade_parse()
 		BOOST_CHECK_EQUAL(q->offer_price(), 1213700.0);
 		BOOST_CHECK_EQUAL(q->offer_volume(), 1);
 		BOOST_CHECK_EQUAL((char)q->get_categ(), 'E');
+		BOOST_CHECK_EQUAL(q->msec(), (10 * 3600 + 26 * 60 + 47) * 1000 + 735);
 		processor.wr_quote( q );
 
 		it++;

@@ -9,6 +9,7 @@
 #include <string>
 #include "boost\shared_ptr.hpp"
 #include "../../tests/multicast_communication_tests/test_registrator.h"
+#include <stdint.h>
 
 typedef unsigned char byte;
 using namespace std;
@@ -65,7 +66,7 @@ protected:
 	enum {
 		time_stamp = 18,
 		header_len = 24, //security_symbol start
-		code_ts = 0x29
+		code_ts = 0x30
 	};
 
 	message_type typ;
@@ -88,9 +89,9 @@ public:
 
 	uint32_t minute()
 	{
-		return (get_time() >> 8) * 60 + get_time() | 0xFF;
+		return (get_time() >> 8) * 60 + get_time() & 0xFF;
 	}
-
+private:
 	void read_time()
 	{
 		char ch1, ch2;
@@ -106,17 +107,18 @@ public:
 	{
 		char ch;
 		get_char(ch) ;
-		t.ms = ch;
+		t.ms = ch - code_ts;
 		for(int i = 0; i != 2; i++)
 		{
 			get_char(ch) ;
-			t.ms = t.ms * 10 + ch;
+			t.ms = t.ms * 10 + ch - code_ts;
 		}
 	}
+public:
 
 	uint32_t msec()
 	{
-		return ((t.hour_minute >> 8) * 3600  + ( t.hour_minute | 0xFF ) + t.sec_) * 1000 + t.ms;
+		return ((t.hour_minute >> 8) * 3600  + ( t.hour_minute & 0xFF ) * 60 + t.sec_) * 1000 + t.ms;
 	}
 	static double denominator(char code)
 	{

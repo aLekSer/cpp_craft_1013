@@ -1,6 +1,6 @@
 #include "minute_calculator.h"
 
-void minute_calculator::push_trade( const boost::shared_ptr<trade> trad )
+void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
 	if(uninit)
 	{
@@ -12,23 +12,24 @@ void minute_calculator::push_trade( const boost::shared_ptr<trade> trad )
 	{
 		minute = trad->get_time();
 		strcpy(vals->stock_name, trad->security_symbol().c_str());
+		double price = trad->price() / trad->denom();
 		if(trad->msec() < vals->first_msec)
 		{
 			vals->first_msec = trad->msec();
-			vals->open_price = trad->price();
+			vals->open_price = price;
 		}
 		if(trad->msec() < vals->last_msec)
 		{
 			vals->last_msec = trad->msec();
-			vals->close_price = trad->price();
+			vals->close_price = price;
 		}
-		if(trad->price() < vals->low_price)
+		if(price < vals->low_price)
 		{
-			vals->low_price = trad->price();
+			vals->low_price = price;
 		}
-		if(trad->price() > vals->high_price)
+		if(price > vals->high_price)
 		{
-			vals->high_price = trad->price();
+			vals->high_price = price;
 		}
 		vals->volume = trad->volume();
 	}
@@ -43,7 +44,7 @@ void minute_calculator::push_trade( const boost::shared_ptr<trade> trad )
 	}
 }
 
-void minute_calculator::push_quote( const boost::shared_ptr<quote> quot )
+void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
 	if(uninit)
 	{

@@ -47,7 +47,11 @@ public:
 	~minute_calculator()
 	{
 	}
-	void push_trade(const boost::shared_ptr<trade> trad);
-	void push_quote(const boost::shared_ptr<quote> quot);
+	void push_trade( boost::shared_ptr<trade> trad);
+	void push_quote( boost::shared_ptr<quote> quot);
+	boost::shared_ptr<minute_extremums> get_vals()
+	{
+		return vals;
+	}
 };
 #endif //_minute_calculator_

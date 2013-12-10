@@ -11,7 +11,7 @@
 	using boost::unit_test_framework::test_case;
 	boost::unit_test_framework::test_suite& master_test_suite = boost::unit_test::framework::master_test_suite();
 
-	master_test_suite.add( BOOST_TEST_CASE( &minute_calculator::calculate) );
+	master_test_suite.add( BOOST_TEST_CASE( &minute_calc::calculate) );
 
 #ifdef RUN_PERFORMANCE_TESTS
 #endif
