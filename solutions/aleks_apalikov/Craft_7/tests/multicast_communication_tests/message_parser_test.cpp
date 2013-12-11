@@ -61,7 +61,7 @@ void text_test::quote_trade_parse()
 		BOOST_CHECK_THROW(
 			q->read(),
 			std::logic_error
-			);
+		);
 		ofs.close();
 
 	}

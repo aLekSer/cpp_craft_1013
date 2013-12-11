@@ -4,13 +4,14 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
 	if(uninit)
 	{
-		minute = trad->minute();
+		minute = trad->minute_of_day();
 		uninit = true;
 		vals->volume = 0;
 	}
-	if(trad->minute() == minute)
+	if(trad->minute_of_day() == minute)
 	{
 		minute = trad->get_time();
+		vals->minute = trad->minute();
 		strcpy(vals->stock_name, trad->security_symbol().c_str());
 		double price = trad->price() / trad->denom();
 		if(trad->msec() < vals->first_msec)
@@ -31,11 +32,11 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 		{
 			vals->high_price = price;
 		}
-		vals->volume = trad->volume();
+		vals->volume += trad->volume();
 	}
-	else if(trad->minute() > minute)
+	else if(trad->minute_of_day() > minute)
 	{
-		minute = trad->minute();
+		minute = trad->minute_of_day();
 		boost::shared_ptr<minute_extremums> shared_stats;
 		shared_stats = vals;
 		send_data(shared_stats);
@@ -48,12 +49,12 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
 	if(uninit)
 	{
-		minute = quot->minute();
+		minute = quot->minute_of_day();
 		uninit = true;
 		vals->bid = 0;
 		vals->ask = 0;
 	}
-	if(quot->minute() == minute)
+	if(quot->minute_of_day() == minute)
 	{
 		minute = quot->get_time();
 		strcpy(vals->stock_name, quot->security_symbol().c_str());
@@ -61,9 +62,9 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 		vals->ask += quot->offer_volume();
 
 	}
-	else if(quot->minute() > minute)
+	else if(quot->minute_of_day() > minute)
 	{
-		minute = quot->minute();
+		minute = quot->minute_of_day();
 		boost::shared_ptr<minute_extremums> shared_stats;
 		shared_stats = vals;
 		send_data(shared_stats);

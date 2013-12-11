@@ -119,7 +119,6 @@ void async_udp::receiver_test()
 			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 1 ) );
 		}
 	}
-	
 
 }
 

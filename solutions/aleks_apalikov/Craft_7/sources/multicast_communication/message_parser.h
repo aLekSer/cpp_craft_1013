@@ -10,6 +10,7 @@
 #include "boost\shared_ptr.hpp"
 #include "../../tests/multicast_communication_tests/test_registrator.h"
 #include <stdint.h>
+#include <time.h>
 
 typedef unsigned char byte;
 using namespace std;
@@ -31,6 +32,19 @@ struct times {
 	uint16_t hour_minute;
 	byte sec_;
 	uint16_t ms;
+	uint32_t relative() // to 1.1.1990
+	{
+		time_t tt;
+		uint32_t ret_val;
+		time(&tt);
+		struct tm * ptm;
+		ptm = gmtime(&tt);
+		ret_val = ((ptm->tm_year - 1900) * 372 + ptm->tm_mon * 31 + ptm->tm_mday);
+		ret_val = ret_val * 24 * 60 + (hour_minute >> 8) * 60 + hour_minute & 0xFF;
+		char debug_time[50];
+		strftime(debug_time, 50, "%d-%m-%Y", ptm);
+		return ret_val;
+	}
 };
 template< class T >
 void write_binary( std::ostream& out, T& t, const size_t len = sizeof( T ) )
@@ -87,9 +101,13 @@ public:
 		return t.hour_minute;
 	}
 
-	uint32_t minute()
+	uint32_t minute_of_day()
 	{
 		return (get_time() >> 8) * 60 + get_time() & 0xFF;
+	}
+	uint32_t minute()
+	{
+		return t.relative();
 	}
 private:
 	void read_time()
