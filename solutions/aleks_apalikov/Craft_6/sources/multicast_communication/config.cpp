@@ -1,7 +1,7 @@
 #include "config.h"
 
 
-config::~config(void)
+config::~config( )
 {
 	conf.close();
 }

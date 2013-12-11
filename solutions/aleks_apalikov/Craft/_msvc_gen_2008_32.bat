@@ -16,3 +16,4 @@ cmake -DVERBOSE=OFF -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DSOLUTION_NAME=%SOLUTION_NA
 cd ../
 
 echo "%BUILD_FOLDER%/%SOLUTION_NAME%.sln" > _start_msvc.bat
+pause

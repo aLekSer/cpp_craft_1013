@@ -4,8 +4,6 @@
 #include <csignal>
 #include "Stock_receiver.h"
 
-#include "main.h" // for tests only
-
 using namespace std;
 bool stop = false;
 void int_handler(int)
@@ -16,9 +14,6 @@ void int_handler(int)
 int main ( int argc, char* argv[] )
 {
 	signal(SIGINT, int_handler);
-#ifdef _data_collector_test_
-	boost::thread send(&start_sending);
-#endif
 
 	stock_receiver sr;
 	cout << "Data_collector is running" << endl;

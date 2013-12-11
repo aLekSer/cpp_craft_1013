@@ -11,7 +11,8 @@ typedef unsigned short port;
 typedef vector<pair<ip_address, port>> addresses;
 //static const string data_path ("D:/CppCraft/solutions/aleks_apalikov/Craft_6/sources/data/") ;
 //static const string data_path ("F:/Cpp_Craft/cpp/solutions/aleks_apalikov/Craft_6/sources/data/") ;
-static const string data_path (BINARY_DIR "/");
+static const string bin_path (BINARY_DIR "/");
+static const string data_path (SOURCE_DIR "/sources/data/");
 
 class config
 {
@@ -25,12 +26,12 @@ class config
 	addresses quotes;
 
 public:
-	config(string& name):file_name(name)
+	explicit config(string& name):file_name(name)
 	{
 		conf.open(file_name.c_str());
 		if(!conf.is_open())
 		{
-			cout<<"file was not open!";
+			cout << "Config file "<< name.c_str() <<" was not open!" << endl;
 			return;
 		}
 		conf >> trade_thread_size;
@@ -58,11 +59,11 @@ public:
 		}
 
 	}
-	addresses& get_trades()
+	const addresses& get_trades()
 	{
 		return trades;
 	}
-	addresses& get_quotes()
+	const addresses& get_quotes()
 	{
 		return quotes;
 	}
@@ -82,7 +83,7 @@ public:
 	{
 		return quote_ports_amount;
 	}
-	~config(void);
+	~config( );
 };
 
 #endif //_CONFIG_H_

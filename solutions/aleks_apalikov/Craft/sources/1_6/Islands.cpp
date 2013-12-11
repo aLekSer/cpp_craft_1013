@@ -23,8 +23,8 @@ Islands::Islands(const string& fileName)
 		for(string::const_iterator it = current.begin(); it < current.end(); it++)
 		{
 			cod = *it;
-			if(cod == 'o') Map[rows - 1].push_back(1);
-			if(cod == '~') Map[rows - 1].push_back(0);
+			if(cod == 'o') Map[rows - 1].push_back(land);
+			if(cod == '~') Map[rows - 1].push_back(water);
 		}
 		rows ++;
 	}
@@ -40,7 +40,7 @@ Islands::Islands(const string& fileName)
 	if(Map.size() == 0) //empty file
 	{
 		Map.resize(1);
-		Map[0].push_back(0);
+		Map[0].push_back(water);
 		rows = 1;
 	}
 	columns = Map[0].size();
@@ -62,136 +62,105 @@ Islands::~Islands(void)
 
 	Map.erase(Map.begin(), Map.end());
 }
-int Islands::Trace()
+void make_water( size_t pos_x, size_t pos_y, vector<vector<int>>& map)
 {
-	count = 1;
-	if((rows == 1) && (columns == 1))
+	size_t x = pos_x;
+	size_t y = pos_y;
+	if(pos_x < map.size() - 1)
 	{
-		count = Map[0][0];
-		return count;
+		if( map[ ++ x][y] == land)
+		{
+			int & low = map[ x][y];
+			low = water;
+			make_water(x, y, map);
+		}
 	}
-	if((rows == 2) && (columns == 1))
+	if(pos_y < map[0].size() - 1)
 	{
-		count = ((Map[0][0] == 1) || (Map[1][0] == 1)) ? 1 : 0; 
-		return count; 
+		if ((map[ pos_x][++y] & 0x3) != 0)
+		{
+			int& right = map[pos_x][y];
+			right = water;
+			make_water(pos_x, y, map);
+		}
 	}
-	if((rows == 1) && (columns == 2))
+	if(pos_y >= 1)
 	{
-		count = ((Map[0][1] == 1) || (Map[0][1] == 1)) ? 1 : 0;
-		return count;
+		y = pos_y - 1;
+		if( (map[ pos_x][y] & 0x3) != 0 )
+		{
+			int & left = map[pos_x][y];
+			if(left != forbidden)
+			{
+				left = water;
+				make_water(pos_x, y, map);
+			}
+		}
 	}
-	for(int i = 0; i < rows; ++i)
+	return;
+	
+}
+
+void Islands::Trace()
+{
+	for(size_t i = 0; i < rows; ++i)
 	{
-		for(int j = 0; j < columns; ++j)
+		for(size_t j = 0; j < columns; ++j)
 		{
 			if(j < columns - 1)
 			{
 				int& right = Map[i][j+1];
 				int& cur = Map[i][j];
-				if ( cur != 0 && right != 0 )
+				if ( cur != water && right != water )
 				{
-					if (cur > right)
-					{
-						right = cur;
-					}
-					else if(cur < right)
-					{
-						int oldCur = cur;
-						cur = right;
-						changeAll(oldCur, cur);
-					}
-					else if((cur == 1) && (right == 1))
-					{
-						count++;
-						right = count;
-						cur = count;
-					}
+					cur = forbidden;
+					make_water(i, j, Map);
+					cur = land;
 				}
 			}
 			if(i < rows - 1)
 			{
 				int& lower = Map[i+1][j];
 				int& cur1 = Map[i][j];
-				if(cur1 != 0 && lower != 0)
+				if(cur1 != water && lower != water)
 				{
-					if (cur1 > lower)
-					{
-						lower = cur1;
-					}
-					else
-					{
-						count++;
-						lower = count;
-						cur1 = count;
-					}
+					cur1 = forbidden;
+					make_water(i, j, Map);
+					cur1 = land;
 				}
 			}
 		}
 	}
-	return count;
-}
-
-void Islands::changeAll(const int old, const int ne )
-{
-	if((old == 1) || (ne == 1))
-		return;
-	for(int i = 0; i < rows; ++i)
-	{
-		for(int j = 0; j < columns; ++j)
-		{
-			if(Map[i][j] == old)
-				Map[i][j] = ne;
-		}
-	}
-
-	
+	return;
 }
 
 int Islands::Count()
 {
-	int trace = Trace();
-	if (count < 2) // no groups was founded
+	if(rows == 0 && columns == 0)
 	{
-		int summ = 0;
-		for(int i = 0; i < rows; ++i)
-		{
-			for(int j = 0; j < columns; ++j)
-			{
-				if( Map[i][j] == 1)
-				{
-					summ++;
-				}
-			}
-		}
-		of << summ;
-		return summ;
+		of << 0;
+		of.flush();
+		return 0;
 	}
-	int* numbers = new int[count];
-	int k;
-	for(k = 0; k < count; k++)
+	if(rows == 1 && columns == 1)
 	{
-		numbers[k] = 0;
+		of << Map[0][0];
+		of.flush();
+		return Map[0][0];
 	}
-	for(int i = 0; i < rows; ++i)
+	Trace();
+	int summ = 0;
+	for(size_t i = 0; i < rows; ++i)
 	{
-		for(int j = 0; j < columns; ++j)
+		for(size_t j = 0; j < columns; ++j)
 		{
-			int cur = Map[i][j];
-			if(cur == 1)
+			if( Map[i][j] == land)
 			{
-				numbers[1]++;
-			}
-			else
-			{
-				numbers[cur] = 1;
+				summ++;
 			}
 		}
 	}
-	int sum = 0;
-	for(k = 0; k < count; k++)
-	{
-		sum += numbers[k];
-	}
-	of << sum;
-	return sum;
+	of << summ;
+	of.flush();
+	return summ;
 }

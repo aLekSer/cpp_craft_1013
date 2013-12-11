@@ -12,13 +12,12 @@ message::message_category message::read_category()
 		if( !inp_good )
 			return end_reached; // from enum message_category
 	}
-	catch (exception e)
+	catch (const exception & e)
 	{
 		cout << e.what() << endl;
 		return end_reached;		
 	}
 	get_byte(ch);
-	bool test = (ch == start);
 	counter ++ ; // total delim:start 's
 	place = 0;
 	get_byte(ch);
@@ -28,7 +27,10 @@ message::message_category message::read_category()
 		return categ;
 	}
 	else 
+	{
+		categ = error_occured;
 		return end_reached;
+	}
 
 }
 
@@ -44,9 +46,9 @@ message* message::read()
 	parse_rest();
 	return this;
 	}
-	catch( std::exception e )
+	catch( const exception & e )
 	{
-		cout << e.what() << endl;
+		cout << e.what() << " at position in file: " << static_cast<int> (inp.tellg())  << endl;
 		categ = end_reached;
 		return this;
 	}
@@ -88,7 +90,7 @@ void message::read_block( stringstream& ss, ifstream& fs )
 		read_binary(fs, c);
 		write_binary(ss, c);
 	}
-	while (c != delim::end && fs.peek() != EOF)
+	while (c != end_of_text && fs.peek() != EOF)
 	{
 		read_binary(fs, c);
 		write_binary(ss, c);
@@ -135,26 +137,31 @@ void message::divide_messages( vector_messages& vec_msgs, boost::shared_ptr<std:
 			{
 				current_message << *it;
 				boost::shared_ptr<message> sm;
-				if((*it == unit_separator) || (*it == delim::end))
+				if((*it == unit_separator) || (*it == end_of_text))
 				{
 					if(quotes)
 					{
 						boost::shared_ptr<quote> st (new quote(current_message));
-						st->read( );
-						if(st->get_categ() != end_reached)						
+						if( st->read( ) != NULL && st->get_categ() != end_reached  
+							&& st->get_categ() != empty && st->get_categ() != error_occured)						
 							sm = boost::static_pointer_cast<message, quote>(st);
 						else 
+						{
+							st.reset();
 							break;
+						}
 					}
 					else
 					{
-						boost::shared_ptr<trade> st (new trade(current_message));
-						st->read( );
-						
-						if(st->get_categ() != end_reached)		
+						boost::shared_ptr<trade> st (new trade(current_message));						
+						if( st->read( ) != NULL && st->get_categ() != end_reached 
+							&& st->get_categ() != empty && st->get_categ() != error_occured)		
 							sm = boost::static_pointer_cast<message, trade>(st);
 						else
+						{
+							st.reset();
 							break;
+						}
 					}
 					vec_msgs.push_back(sm);
 					sm.reset();

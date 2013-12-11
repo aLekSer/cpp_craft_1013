@@ -4,7 +4,7 @@
 
 int main()
 {
-	Islands is("Input3.txt");
+	Islands is("input3.txt");
 	std::cout<<is.Count();
 	return 1;
 }

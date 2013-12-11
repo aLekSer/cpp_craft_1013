@@ -48,7 +48,9 @@ void text_test::quote_trade_parse()
 		vector_messages::iterator it;
 		boost::shared_ptr<string> shar_str ( new string( ss.str()) );
 		message::divide_messages(msgs, shar_str, true);	
-		it = msgs.begin();
+		BOOST_CHECK_NO_THROW (
+			it = msgs.begin();
+		)
 		q = boost::static_pointer_cast<quote, message> (*it) ;
 		BOOST_CHECK_EQUAL(q->bid_denom(), '3');
 		BOOST_CHECK_EQUAL(q->bid_price(), 1212700.0);
@@ -97,7 +99,7 @@ void text_test::quote_trade_parse()
 		inp.open (str.c_str());
 		quote q(inp);
 		q.read();
-		while( q.get_categ() != -1)
+		while( q.get_categ() != message::end_reached)
 		{
 			q.categ = message::empty;
 			q.read();
@@ -110,7 +112,11 @@ void text_test::quote_trade_parse()
 					break;
 				}
 			}
-			inp.seekg((size_t)inp.tellg() - 1);
+			if(inp.peek() != EOF)
+			{
+				inp.seekg((size_t)inp.tellg() - 1);
+			}
+			else break;
 		}
 	}
 	
@@ -131,19 +137,24 @@ void text_test::quote_trade_parse()
 			istreambuf_iterator<char>(),
 			ostreambuf_iterator<char>(sout));
 		message m(sout);
-		while(m.read_category() != -1)
+		while(m.read_category() != message::end_reached)
 		{
 			m.categ = message::empty;
 			char c = 0;
 			while(c != start)
 			{
-				m.get_char(c);
 				if(sout.peek() == EOF)
 				{
 					break;
 				}
+				m.get_char(c);
 			}
-			sout.seekg((size_t)sout.tellg() - 1);
+
+			if(sout.peek() != EOF)
+			{
+				sout.seekg((size_t)sout.tellg() - 1);
+			}
+			else break;
 		}
 	}
 
@@ -153,18 +164,18 @@ void text_test::quote_trade_parse()
 		fs.open (str.c_str());
 		trade t(fs);
 		t.read();
-		while( t.get_categ() != -1)
+		while( t.get_categ() != message::end_reached)
 		{
 			t.categ = message::empty;
 			t.read();
 			char c = 0;
 			while(c != start)
 			{
-				t.get_char(c);
 				if(fs.peek() == EOF)
 				{
 					break;
 				}
+				t.get_char(c);
 			}
 			if(fs.peek() != EOF)
 			{
@@ -172,9 +183,5 @@ void text_test::quote_trade_parse()
 			}
 			else break;
 		}
-	}
-
-	{
-	
 	}
 }
