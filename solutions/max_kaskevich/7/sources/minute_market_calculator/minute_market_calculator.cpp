@@ -9,14 +9,15 @@ minute_market::minute_market_calculator::minute_market_calculator( callback_type
 
 }
 
+minute_market::minute_market_calculator::~minute_market_calculator()
+{
+}
+
 void add_trade( minute_datafeed& mdf, const trade_message_ptr& msg )
 {
     mdf.high_prise = std::max( mdf.high_prise, msg->price() );
     mdf.low_price = std::min( mdf.low_price, msg->price() );
-    size_t stock_name_legnth = msg->security_symbol().length();
     mdf.volume += msg->volume();
-    std::memcpy( mdf.stock_name, msg->security_symbol().c_str(), stock_name_legnth );
-    mdf.stock_name[ stock_name_legnth ] = '\0';
 
     mdf.close_prise = msg->price(); // save price of last added trade
 }
@@ -31,25 +32,25 @@ void add_first_trade( minute_datafeed& mdf, const trade_message_ptr& msg )
 
 void add_quote( minute_datafeed& mdf, const quote_message_ptr& msg)
 {
-    mdf.bid += msg->bid_price();
-    mdf.ask += msg->offer_price();
+    mdf.bid += msg->bid_volume();
+    mdf.ask += msg->offer_volume();
 }
 
 void minute_market::minute_market_calculator::new_trade( const trade_message_ptr& msg )
 {
     new_msg< const trade_message_ptr& >( msg, add_trade, add_first_trade,
-        []( const minute_datafeed& mdf ) -> bool
+        []( const safe_minute_datafeed& smdf ) -> bool
         {
-            return mdf.open_prise == 0.0;
+            return !smdf.have_trades;
         });
 }
 
 void minute_market::minute_market_calculator::new_quote( const quote_message_ptr& msg)
 {
     new_msg< const quote_message_ptr& >( msg, add_quote, add_quote,
-        []( const minute_datafeed& mdf ) -> bool
+        []( const safe_minute_datafeed& smdf ) -> bool
         {
-            return mdf.bid == 0.0;
+            return !smdf.have_quotes;
         });
 }
 
@@ -67,3 +68,11 @@ std::ostream& minute_market::operator<<( std::ostream& output, const minute_data
     return output;
 }
 
+void minute_market::minute_market_calculator::dump()
+{
+    boost::unique_lock< boost::shared_mutex > write_lock( map_mtx_ );
+    for( auto& stockname_pair: stock_name_map_ )
+    {
+        callback_( stockname_pair.second->mdf );
+    }
+}

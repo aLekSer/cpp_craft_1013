@@ -125,5 +125,6 @@ void minute_market::tests_::test_sender( const std::string& address, unsigned sh
 
      //boost::this_thread::sleep_for( boost::chrono::milliseconds( 2000 ) );
      BOOST_CHECK_NO_THROW( receiver.stop(); )
+     BOOST_CHECK_NO_THROW( processor.stop(); )
      //)
  }

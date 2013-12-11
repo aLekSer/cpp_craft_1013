@@ -43,8 +43,15 @@ namespace minute_market
 
     class minute_market_calculator
     {
-        typedef std::pair< std::unique_ptr< std::mutex >, minute_datafeed > safe_minute_datafeed;
-        typedef std::unordered_map< std::string, safe_minute_datafeed > stock_name_map_type;
+        struct safe_minute_datafeed
+        {
+            boost::mutex mtx_;
+            minute_datafeed mdf;
+            bool have_trades;
+            bool have_quotes;
+        };
+        typedef std::shared_ptr< safe_minute_datafeed > safe_minute_datafeed_ptr;
+        typedef std::unordered_map< std::string, safe_minute_datafeed_ptr > stock_name_map_type;
         stock_name_map_type stock_name_map_;
         typedef std::function< void ( const minute_datafeed& ) > callback_type;
         callback_type callback_;
@@ -52,64 +59,74 @@ namespace minute_market
         boost::shared_mutex map_mtx_;
 
     public:
-        minute_market_calculator( callback_type callback );
+        static const size_t time_interval = 60u;
+
+        explicit minute_market_calculator( callback_type callback );
+        ~minute_market_calculator();
 
         void new_trade( const trade_message_ptr& );
         void new_quote( const quote_message_ptr& );
 
+        void dump();
+
         template< class MsgType >
         void new_msg( MsgType msg, std::function< void( minute_datafeed&, MsgType ) > msg_handler,
             std::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
-            std::function< bool( const minute_datafeed& ) > is_first_msg_for )
+            std::function< bool( const safe_minute_datafeed& ) > is_first_msg_for )
         {
             stock_name_map_type::iterator it;
-            safe_minute_datafeed* smdf = NULL;
+            safe_minute_datafeed_ptr smdf;
             {
                 boost::shared_lock< boost::shared_mutex > read_lock( map_mtx_ );
                 it = stock_name_map_.find( msg->security_symbol() );
                 if( it != stock_name_map_.end() )
                 {
-                    smdf = &it->second;
+                    smdf = it->second;
                 }
             }
 
             if( !smdf )
             {
                 boost::unique_lock< boost::shared_mutex > write_lock( map_mtx_ );
-                auto res = stock_name_map_.emplace( msg->security_symbol(), safe_minute_datafeed() );
+                auto res = stock_name_map_.emplace( msg->security_symbol(), safe_minute_datafeed_ptr() );
                 it = res.first;
                 if ( res.second )
                 {
-                    it->second.first.reset( new std::mutex() );
+                    it->second.reset( new safe_minute_datafeed() );
                 }
-                smdf = &it->second;
+                smdf = it->second;
             }
 
-
-            minute_datafeed& mdf =  smdf->second;
-
-            if ( msg->time() >= mdf.minute + 60 )
             {
-                std::lock_guard< std::mutex > lock( *( smdf->first ) );                
-                if ( mdf.minute )
+                boost::shared_lock< boost::shared_mutex > read_lock( map_mtx_ );
+
+                minute_datafeed& mdf =  smdf->mdf;
+
+                if ( msg->time() >= mdf.minute + minute_market_calculator::time_interval )
                 {
-                    callback_( mdf );
+                    boost::mutex::scoped_lock lock( smdf->mtx_ );                
+                    if ( mdf.minute )
+                    {
+                        callback_( mdf );
+                    }
+                    mdf = minute_datafeed();
+                    first_msg_handler( mdf, msg );
+                    mdf.minute = msg->time();
+                    size_t stock_name_legnth = msg->security_symbol().length();
+                    std::memcpy( mdf.stock_name, msg->security_symbol().c_str(), stock_name_legnth );
                 }
-                mdf = minute_datafeed();
-                first_msg_handler( mdf, msg );
-                mdf.minute = msg->time();
-            }
-            else if ( msg->time() >= mdf.minute )
-            {
-               std::lock_guard< std::mutex > lock( *( smdf->first ) );
-               if ( is_first_msg_for( mdf ) )
-               {
-                   first_msg_handler( mdf, msg );
-               }
-               else
-               {
-                   msg_handler( mdf, msg );
-               }
+                else if ( msg->time() >= mdf.minute )
+                {
+                   boost::mutex::scoped_lock lock( smdf->mtx_ );
+                   if ( is_first_msg_for( *smdf ) )
+                   {
+                       first_msg_handler( mdf, msg );
+                   }
+                   else
+                   {
+                       msg_handler( mdf, msg );
+                   }
+                }
             }
         }
     };

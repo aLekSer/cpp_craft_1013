@@ -21,8 +21,8 @@ using namespace multicast_communication;
             BOOST_CHECK_EQUAL( mdf.low_price, 77.9 );
             BOOST_CHECK_EQUAL( std::string( mdf.stock_name ), std::string( "ACN" ) );
             BOOST_CHECK_EQUAL( mdf.minute, 36225u );
-            BOOST_CHECK_EQUAL( mdf.bid, 82.94 );
-            BOOST_CHECK_EQUAL( mdf.ask, 82.96 );
+            BOOST_CHECK_EQUAL( mdf.bid, 12 );
+            BOOST_CHECK_EQUAL( mdf.ask, 8.0 );
             std::ostringstream output;
             BOOST_CHECK_NO_THROW( output << mdf; )
             BOOST_CHECK_EQUAL( output.str().length(), 76 );

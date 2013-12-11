@@ -9,6 +9,7 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 
 find_package( multicast_communication ${SEARCH_PARAMETERS} COMPONENTS
 	multicast_communication
+	thread_safe_queue
 )
 
 

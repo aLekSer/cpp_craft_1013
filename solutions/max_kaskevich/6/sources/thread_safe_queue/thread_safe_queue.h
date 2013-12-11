@@ -102,7 +102,7 @@ namespace multicast_communication
         if ( !queue_.empty() )
         {
             lock.unlock();
-            cond_.notify_one();
+            cond_.notify_all();
         }
     }
 
@@ -114,7 +114,7 @@ namespace multicast_communication
         {
             waitable_ = false;
             lock.unlock();
-            cond_.notify_one();            
+            cond_.notify_all();            
         }
     }
 
