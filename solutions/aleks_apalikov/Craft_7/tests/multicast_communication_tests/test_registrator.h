@@ -14,3 +14,7 @@ namespace async_udp
 		void udp_writer_tests();
 	}
 }
+namespace minute_calc
+{
+	void calculate();
+}
