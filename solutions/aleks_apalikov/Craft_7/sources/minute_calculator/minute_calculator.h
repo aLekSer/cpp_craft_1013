@@ -44,10 +44,12 @@ public:
 	{
 		uninit = true;
 		vals.reset (new minute_extremums);
-		vals->ask = vals->bid = vals->close_price = vals->high_price = vals->open_price 
-			= vals->low_price = vals->volume = -1; // for checking before outputting
-		vals->first_msec = 1001;
-		vals->last_msec = -1;
+		vals->close_price = vals->high_price = vals->open_price 
+			= vals->low_price = -1; // for checking before outputting
+		vals->volume = 0;
+		vals->ask = vals->bid = 0; // check for == 0
+		vals->first_msec = 60001;
+		vals->last_msec = 0;
 		
 	}
 	~minute_calculator()

@@ -52,12 +52,12 @@ void minute_calc::calculate()
 		vector_messages msgs;
 		vector_messages::iterator it;
 		boost::shared_ptr<string> shar_str ( new string( ss.str()) );
-		message::divide_messages(msgs, shar_str, true);	
+		message::divide_messages(msgs, shar_str, false);	
 		BOOST_CHECK_NO_THROW (
 			it = msgs.begin();
 		)
 		minute_calculator mc;
-		for(int i = 0; i < 13; i++)
+		for(int i = 0; i < 15; i++)
 		{
 			q = boost::static_pointer_cast<trade, message> (*it) ;
 			mc.push_trade(q);

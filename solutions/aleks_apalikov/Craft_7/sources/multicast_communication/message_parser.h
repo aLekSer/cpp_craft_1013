@@ -137,7 +137,7 @@ public:
 
 	uint32_t msec()
 	{
-		return ((t.hour_minute >> 8) * 3600  + ( t.hour_minute & 0xFF ) * 60 + t.sec_) * 1000 + t.ms;
+		return 1000 * t.sec_ + t.ms;
 	}
 	static double denominator(char code)
 	{
