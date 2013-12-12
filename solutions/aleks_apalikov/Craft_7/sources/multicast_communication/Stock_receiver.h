@@ -18,20 +18,20 @@ using namespace async_udp;
 //typedef void (* quote_func) (boost::shared_ptr<quote>);
 class worker
 {
-	minute_calculator& minc;
+	minute_calculator* minc;
 public:
-	worker(minute_calculator& mc): minc (mc)
+	worker(minute_calculator* mc): minc (mc)
 	{
 
 	}
 	void operator() (boost::shared_ptr<trade> t)
 	{
-		minc.push_trade(t);
+		minc->push_trade(t);
 
 	}
 	void operator() (boost::shared_ptr<quote> q)
 	{
-		minc.push_quote(q);
+		minc->push_quote(q);
 	}
 };
 class stock_receiver

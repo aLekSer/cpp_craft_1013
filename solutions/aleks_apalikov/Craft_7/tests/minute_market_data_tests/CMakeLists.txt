@@ -7,6 +7,6 @@ find_package( Boost ${SEARCH_PARAMETERS} COMPONENTS
 	regex
 )
 
-compile_project( ${tests_name} "*.cpp" "*.h" BINARY tests ${module_name} Boost )
+compile_project( ${tests_name} "*.cpp" "*.h" BINARY tests ${module_name} Boost multicast_communication)
 register_test( ${tests_name} 1 0.5 )
 
