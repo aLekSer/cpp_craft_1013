@@ -28,7 +28,7 @@ int main ( int argc, char* argv[] )
 		sr.wait_some_data();
 	}
 	sr.stop();
-	cout << "Program was interrupted, market data saved in results.txt output file "<< endl;
+	cout << "Program was interrupted, market data saved in market_data.dat output file "<< endl;
 
 
 	return 0;

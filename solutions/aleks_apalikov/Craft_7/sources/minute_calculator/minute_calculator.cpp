@@ -5,7 +5,7 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 	if(uninit)
 	{
 		minute = trad->minute_of_day();
-		uninit = true;
+		uninit = false;
 		vals->volume = 0;
 	}
 	if(trad->minute_of_day() == minute)
@@ -50,7 +50,7 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 	if(uninit)
 	{
 		minute = quot->minute_of_day();
-		uninit = true;
+		uninit = false;
 		vals->bid = 0;
 		vals->ask = 0;
 	}

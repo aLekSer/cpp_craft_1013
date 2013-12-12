@@ -67,6 +67,7 @@ protected:
 		equity = 'E',
 		local_issue = 'L',
 		end_reached = -1,
+		error_occured = -2,
 		empty = 'Y'
 	};
 	message_category categ;
@@ -143,6 +144,7 @@ public:
 		static const int denoms[19] = {1, 1, 1, 8, 16, 32, 64, 128, 256, 1, 1,
 			10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 		int decimal = 10;
+		if (code == '0') return -1.0;
 		if( code == 'I' ) return 1.0;
 		if( code >= '3' && code <= '9' ) 
 		{

@@ -15,7 +15,7 @@ message::message_category message::read_header()
 		if( !inp_good )
 			return end_reached; // from enum message_category
 	}
-	catch (exception e)
+	catch (const exception & e)
 	{
 		cout << e.what() << endl;
 		return end_reached;		
@@ -30,7 +30,10 @@ message::message_category message::read_header()
 		categ = (message_category)ch;
 	}
 	else 
+	{
+		categ = error_occured;
 		return end_reached;
+	}
 
 	byte b;
 	get_byte(b); 
@@ -58,7 +61,7 @@ message* message::read()
 		parse_rest();
 		return this;
 	}
-	catch( std::exception e )
+	catch( const exception & e )
 	{
 		cout << e.what() << endl;
 		categ = end_reached;
@@ -154,21 +157,26 @@ void message::divide_messages( vector_messages& vec_msgs, boost::shared_ptr<std:
 					if(quotes)
 					{
 						boost::shared_ptr<quote> st (new quote(current_message));
-						st->read( );
-						if(st->get_categ() != end_reached)						
+						if( st->read( ) != NULL && st->get_categ() != end_reached  
+							&& st->get_categ() != empty && st->get_categ() != error_occured)						
 							sm = boost::static_pointer_cast<message, quote>(st);
 						else 
+						{
+							st.reset();
 							break;
+						}
 					}
 					else
 					{
 						boost::shared_ptr<trade> st (new trade(current_message));
-						st->read( );
-						
-						if(st->get_categ() != end_reached)		
+						if( st->read( ) != NULL && st->get_categ() != end_reached 
+							&& st->get_categ() != empty && st->get_categ() != error_occured)		
 							sm = boost::static_pointer_cast<message, trade>(st);
 						else
+						{
+							st.reset();
 							break;
+						}
 					}
 					vec_msgs.push_back(sm);
 					sm.reset();

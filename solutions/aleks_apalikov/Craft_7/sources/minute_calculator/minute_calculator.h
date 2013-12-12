@@ -43,6 +43,7 @@ public:
 	minute_calculator()
 	{
 		uninit = true;
+		vals.reset (new minute_extremums);
 	}
 	~minute_calculator()
 	{
