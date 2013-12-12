@@ -63,8 +63,6 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 		send_data(shared_stats);
 		extr.reset(new map_extr);
 		minute = trad->minute();
-		vals->minute = minute;
-		vals.reset(new minute_extremums);
 		push_trade(trad);
 	}
 	vals.reset();
@@ -72,7 +70,8 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 
 void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
-//	boost::mutex::scoped_lock lock(calc_mtx);
+	//	boost::mutex::scoped_lock lock(calc_mtx);
+	bool insert = false;
 	if(quot.use_count() == 0)
 	{
 		return;
@@ -81,27 +80,45 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 	{
 		minute = quot->minute();
 		uninit = false;
-		vals->bid = 0;
-		vals->ask = 0;
+		extr.reset(new map_extr);
 	}
 	if(quot->minute() == minute)
 	{
+		char st [sn_size];
 		minute = quot->get_time();
-		strcpy(vals->stock_name, quot->security_symbol().c_str());
+		strcpy(st, quot->security_symbol().c_str());
+		map_extr::iterator i = extr->find(string (st));
+		if(i != extr->end())
+		{
+			vals = (*i).second;
+		}
+		else
+		{
+			vals.reset(new minute_extremums);
+			insert = true;
+		}
+		vals->minute = quot->minute();
+		strcpy(vals->stock_name, st);
 		vals->bid += quot->bid_volume(); 
 		vals->ask += quot->offer_volume();
+
+		if(insert)
+		{
+			extr->insert(make_pair(string(vals->stock_name), vals));
+		}
 
 	}
 	else if(quot->minute() > minute)
 	{
-		minute = quot->minute();
-		shared_map shared_stats = extr;
+		shared_map shared_stats;
+		shared_stats = extr;
 		send_data(shared_stats);
-		vals.reset(new minute_extremums);
+		extr.reset(new map_extr);
+		minute = quot->minute();
 		push_quote(quot);
 	}
+	vals.reset();
 }
-
 void minute_calculator::send_data( shared_map stat) 
 {
 	que->push(stat);
