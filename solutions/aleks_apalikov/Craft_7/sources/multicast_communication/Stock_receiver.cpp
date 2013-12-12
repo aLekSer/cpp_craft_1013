@@ -81,6 +81,11 @@ int stock_receiver::wait_some_data()
 				str = trade_listeners[i]->messages_pop() ;
 			}
 			message::divide_messages(msgs, str, false);
+			for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
+			{
+				boost::shared_ptr<trade> sp = boost::static_pointer_cast<trade, message>(*it);
+				(*work)(sp);
+			}
 			if(processor.wr_trades(msgs) != 0)
 				ret_val = static_cast<int>( i );
 			break;
@@ -97,6 +102,11 @@ int stock_receiver::wait_some_data()
 				str = quote_listeners[i]->messages_pop();
 			}
 			message::divide_messages(msgs,  str, true);
+			for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
+			{
+				boost::shared_ptr<quote> sp = boost::static_pointer_cast<quote, message>(*it);
+				(*work)(sp);
+			}
 			if(processor.wr_quotes(msgs) != 0)
 				return static_cast<int>( i );
 			else return ret_val;
@@ -125,4 +135,9 @@ void stock_receiver::stop()
 		(*(it))->stop();
 	}
 	threads.join_all();
+}
+
+void stock_receiver::add_callback( worker* w )
+{
+	work = w;
 }

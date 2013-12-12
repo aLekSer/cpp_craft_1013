@@ -19,6 +19,7 @@ public:
 
 	void push( const T& new_element );
 	bool pop( T& result );
+	bool pop();
 
 	bool empty() const;
 	size_t size() const;
@@ -50,6 +51,16 @@ bool thread_safe_queue< T >::pop( T& result )
 	if(que.empty())
 		return false;
 	result = que.front();
+	que.pop();
+	return true;
+}
+
+template< typename T >
+bool thread_safe_queue< T >::pop(  )
+{
+	lock_t pop_lock(protector);
+	if(que.empty())
+		return false;
 	que.pop();
 	return true;
 }

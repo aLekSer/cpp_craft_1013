@@ -12,12 +12,16 @@
 #include "boost/shared_ptr.hpp"
 #include <string>
 #include "../multicast_communication/config.h"
+#include "../multicast_communication/Stock_receiver.h"
 
 using namespace std;
 class minute_market_data
 {
 	typedef boost::shared_ptr<ofstream> shared_fstream;
 	typedef map<string, boost::shared_ptr<ofstream>> streams;
+	minute_calculator* mc;
+	stock_receiver sr;
+	
 	streams outp;
 	thread_safe_queue<shared_map> que;
 	boost::mutex mtx;
@@ -26,11 +30,27 @@ public:
 	{
 		outp.insert( make_pair("1", 
 			new ofstream((string(data_path + "1.data")).c_str() )) );
+		mc = new minute_calculator(&que);
+		worker w(*mc);
+		sr.add_callback(&w);
 
 	}
 	~minute_market_data()
 	{
+		while (!que.empty())
+		{
+			que.pop();
+		}
+		delete mc;
 		close();
+	}
+	void get_trade(boost::shared_ptr<trade> t)
+	{
+		mc->push_trade(t);
+	}
+	void get_quote(boost::shared_ptr<quote> q)
+	{
+		mc->push_quote(q);
 	}
 	
 	int process_one()

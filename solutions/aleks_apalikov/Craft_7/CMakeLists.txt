@@ -3,8 +3,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set( CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE} CACHE STRING "Configurations" FORCE )
 project( ${SOLUTION_NAME} )
 include( environment.cmake required )
+set (VERBOSE  TRUE)
 
-modules( multicast_communication minute_calculator minute_market_data )
+modules( minute_calculator minute_market_data multicast_communication )
 binaries( data_collector )
 
 compile()
