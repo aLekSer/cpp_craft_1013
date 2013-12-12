@@ -56,7 +56,7 @@ void minute_calc::calculate()
 		BOOST_CHECK_NO_THROW (
 			it = msgs.begin();
 		)
-		minute_calculator mc;
+		minute_calculator mc(new thread_safe_queue<shared_map>);
 		for(int i = 0; i < 14; i++)
 		{
 			q = boost::static_pointer_cast<trade, message> (*it) ;

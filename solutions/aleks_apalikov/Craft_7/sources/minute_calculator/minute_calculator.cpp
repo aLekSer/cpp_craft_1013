@@ -100,7 +100,7 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 	}
 }
 
-void minute_calculator::send_data( shared_map ) 
+void minute_calculator::send_data( shared_map stat) 
 {
-
+	que->push(stat);
 }

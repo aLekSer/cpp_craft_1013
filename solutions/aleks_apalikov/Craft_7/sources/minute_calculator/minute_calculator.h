@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdint.h>
 #include "boost/shared_ptr.hpp"
+#include "../minute_market_data/thread_safe_queue.h"
 
 enum{
 	sn_size = 16
@@ -52,10 +53,12 @@ class minute_calculator
 	boost::mutex calc_mtx;
 	bool uninit;
 	uint32_t minute;
+	thread_safe_queue<shared_map>* que;
 	void send_data(shared_map); //send to market_data
 public:
-	minute_calculator()
+	explicit minute_calculator(thread_safe_queue<shared_map>* q)
 	{
+		que = q;
 		uninit = true;		
 	}
 	~minute_calculator()
