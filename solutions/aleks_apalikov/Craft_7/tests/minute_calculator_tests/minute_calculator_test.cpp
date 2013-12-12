@@ -5,7 +5,7 @@
 
 void minute_calc::calculate()
 {
-	{
+/*	{
 		stringstream ss;
 		ss << "EBEO A  003759557N:J_735AVB             0    AAAR B30000012127000000001D0000012137000000001     A   62TB00012130001 BB00012137001 "
 			<<"EDEO A  003759121P:J_428AINR  D00352000001 F00354300001 02" + string("\x1f")
@@ -31,7 +31,7 @@ void minute_calc::calculate()
 		q = boost::static_pointer_cast<quote, message> (*it) ;
 		mc.push_quote(q);
 
-	}
+	}*/
 	{
 		stringstream ss;
 		ss << "EBAO A  000146234N:3]004ACN             0     000 F  1  D000000779000000000100DD 0"
@@ -57,13 +57,13 @@ void minute_calc::calculate()
 			it = msgs.begin();
 		)
 		minute_calculator mc;
-		for(int i = 0; i < 15; i++)
+		for(int i = 0; i < 14; i++)
 		{
 			q = boost::static_pointer_cast<trade, message> (*it) ;
 			mc.push_trade(q);
 			if(it != msgs.end())
 				it++;
 		}
-		BOOST_CHECK_EQUAL(mc.get_vals()->low_price, 2000);
+		BOOST_CHECK_EQUAL(mc.get_stat()->find("ACN")->first, "ACN");
 	}
 }

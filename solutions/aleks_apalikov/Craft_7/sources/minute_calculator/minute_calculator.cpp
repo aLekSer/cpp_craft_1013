@@ -2,6 +2,7 @@
 
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
+	bool insert = false;
 	if(trad.use_count() == 0)
 	{
 		return;
@@ -10,12 +11,25 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 	{
 		minute = trad->minute();
 		uninit = false;
-		vals->volume = 0;
+		extr.reset(new map_extr);
 	}
 	if(trad->minute() == minute)
 	{
+		char st [sn_size];
+		strcpy(st, trad->security_symbol().c_str());
+
+		map_extr::iterator i = extr->find(string (st));
+		if(i != extr->end())
+		{
+			vals = (*i).second;
+		}
+		else
+		{
+			vals.reset(new minute_extremums);
+			insert = true;
+		}
 		vals->minute = trad->minute();
-		strcpy(vals->stock_name, trad->security_symbol().c_str());
+		strcpy(vals->stock_name, st);
 		double price = trad->price() / trad->denom();
 		if(trad->msec() < vals->first_msec)
 		{
@@ -36,17 +50,23 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 			vals->high_price = price;
 		}
 		vals->volume += trad->volume();
+		if(insert)
+		{
+			extr->insert(make_pair(string(vals->stock_name), vals));
+		}
 	}
 	else if(trad->minute() > minute)
 	{
+		shared_map shared_stats;
+		shared_stats = extr;
+		send_data(shared_stats);
+		extr.reset(new map_extr);
 		minute = trad->minute();
 		vals->minute = minute;
-		boost::shared_ptr<minute_extremums> shared_stats;
-		shared_stats = vals;
-		send_data(shared_stats);
 		vals.reset(new minute_extremums);
 		push_trade(trad);
 	}
+	vals.reset();
 }
 
 void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
@@ -73,15 +93,14 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 	else if(quot->minute() > minute)
 	{
 		minute = quot->minute();
-		boost::shared_ptr<minute_extremums> shared_stats;
-		shared_stats = vals;
+		shared_map shared_stats = extr;
 		send_data(shared_stats);
 		vals.reset(new minute_extremums);
 		push_quote(quot);
 	}
 }
 
-void minute_calculator::send_data( boost::shared_ptr<minute_extremums> ) 
+void minute_calculator::send_data( shared_map ) 
 {
 
 }
