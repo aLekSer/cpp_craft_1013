@@ -5,7 +5,7 @@
 #include "boost/asio.hpp"
 #include "udp_listener.h"
 #include <vector>
-#include "../minute_calculator/minute_calculator.h"
+#include "../multicast_communication/minute_calculator.h"
 #include "boost/thread.hpp"
 #include "message_parser.h"
 #include <stdexcept>

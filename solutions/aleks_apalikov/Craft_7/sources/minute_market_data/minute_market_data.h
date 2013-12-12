@@ -7,7 +7,7 @@
 #include <iomanip>
 #include "thread_safe_queue.h"
 #include "../multicast_communication/message_parser.h"
-#include "../minute_calculator/minute_calculator.h"
+#include "../multicast_communication/minute_calculator.h"
 #include <map>
 #include "boost/shared_ptr.hpp"
 #include <string>

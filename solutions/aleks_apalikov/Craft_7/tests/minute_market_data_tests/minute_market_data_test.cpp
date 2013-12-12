@@ -1,9 +1,37 @@
 #include "test_registrator.h"
 #include "minute_market_data.h"
+#include "../multicast_communication/message_parser.h"
+#include "boost/asio.hpp"
 
 void market_data::data_test()
 {
 	{
+		boost::asio::io_service service;
+		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.128" ), 62128 );  
+		boost::asio::ip::udp::socket socket( service, endp.protocol());
+
+		ifstream fs( string(data_path + "minut_dat" + ".udp").c_str()) ;
+		stringstream ss;
+		minute_market_data md;
+		md.run();
+		while (fs.peek() != EOF)
+		{
+			message::read_block(ss, fs);
+			socket.send_to(boost::asio::buffer(ss.str()), endp);
+			ss.str("");
+
+		}
+
+		int i = 0;
+		while( i < 100 )
+		{
+			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 10000 ) );
+			i++;
+			//			md.process_one();
+		}
+		md.stop();
+	}
+	/*{
 		boost::asio::io_service service;
 		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.0" ), 61000 ); 
 		boost::asio::ip::udp::socket socket( service, endp.protocol() );
@@ -28,5 +56,5 @@ void market_data::data_test()
 		md.stop();
 	
 	
-	}
+	}*/
 }
