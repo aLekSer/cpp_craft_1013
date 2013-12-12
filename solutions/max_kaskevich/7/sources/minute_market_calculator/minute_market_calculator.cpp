@@ -39,18 +39,28 @@ void add_quote( minute_datafeed& mdf, const quote_message_ptr& msg)
 void minute_market::minute_market_calculator::new_trade( const trade_message_ptr& msg )
 {
     new_msg< const trade_message_ptr& >( msg, add_trade, add_first_trade,
-        []( const safe_minute_datafeed& smdf ) -> bool
+        []( safe_minute_datafeed& smdf ) -> bool
         {
-            return !smdf.have_trades;
+            if ( !smdf.have_trades )
+            {
+                smdf.have_trades = true;
+                return true;
+            }
+            return false;
         });
 }
 
 void minute_market::minute_market_calculator::new_quote( const quote_message_ptr& msg)
 {
     new_msg< const quote_message_ptr& >( msg, add_quote, add_quote,
-        []( const safe_minute_datafeed& smdf ) -> bool
+        []( safe_minute_datafeed& smdf ) -> bool
         {
-            return !smdf.have_quotes;
+            if ( !smdf.have_quotes )
+            {
+                smdf.have_quotes = true;
+                return true;
+            }
+            return false;
         });
 }
 

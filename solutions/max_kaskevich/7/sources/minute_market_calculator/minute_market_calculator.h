@@ -72,7 +72,7 @@ namespace minute_market
         template< class MsgType >
         void new_msg( MsgType msg, std::function< void( minute_datafeed&, MsgType ) > msg_handler,
             std::function< void( minute_datafeed&, MsgType ) > first_msg_handler,
-            std::function< bool( const safe_minute_datafeed& ) > is_first_msg_for )
+            std::function< bool( safe_minute_datafeed& ) > check_set_first_msg_for )
         {
             stock_name_map_type::iterator it;
             safe_minute_datafeed_ptr smdf;
@@ -110,6 +110,7 @@ namespace minute_market
                         callback_( mdf );
                     }
                     mdf = minute_datafeed();
+                    check_set_first_msg_for( *smdf );
                     first_msg_handler( mdf, msg );
                     mdf.minute = msg->time();
                     size_t stock_name_legnth = msg->security_symbol().length();
@@ -118,7 +119,7 @@ namespace minute_market
                 else if ( msg->time() >= mdf.minute )
                 {
                    boost::mutex::scoped_lock lock( smdf->mtx_ );
-                   if ( is_first_msg_for( *smdf ) )
+                   if ( check_set_first_msg_for( *smdf ) )
                    {
                        first_msg_handler( mdf, msg );
                    }
