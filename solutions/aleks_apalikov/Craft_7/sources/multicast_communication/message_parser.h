@@ -39,9 +39,9 @@ struct times {
 		time(&tt);
 		struct tm * ptm;
 		ptm = gmtime(&tt);
-		ret_val = ((ptm->tm_year - 1900) * 372 + ptm->tm_mon * 31 + ptm->tm_mday);
-		ret_val = ret_val * 24 * 60 + (hour_minute >> 8) * 60 + hour_minute & 0xFF;
-		char debug_time[50];
+		ret_val = ((ptm->tm_year) * 372 + ptm->tm_mon * 31 + ptm->tm_mday);
+		ret_val = ret_val * 24 * 60 + (hour_minute >> 8) * 60 + (hour_minute & 0xFF);
+		char debug_time[50]; //TODO del before pull request
 		strftime(debug_time, 50, "%d-%m-%Y", ptm);
 		return ret_val;
 	}
@@ -67,6 +67,7 @@ protected:
 		equity = 'E',
 		local_issue = 'L',
 		end_reached = -1,
+		error_occured = -2,
 		empty = 'Y'
 	};
 	message_category categ;
@@ -103,7 +104,7 @@ public:
 
 	uint32_t minute_of_day()
 	{
-		return (get_time() >> 8) * 60 + get_time() & 0xFF;
+		return (get_time() >> 8) * 60 + (get_time() & 0xFF);
 	}
 	uint32_t minute()
 	{
@@ -143,6 +144,7 @@ public:
 		static const int denoms[19] = {1, 1, 1, 8, 16, 32, 64, 128, 256, 1, 1,
 			10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000};
 		int decimal = 10;
+		if (code == '0') return -1.0;
 		if( code == 'I' ) return 1.0;
 		if( code >= '3' && code <= '9' ) 
 		{

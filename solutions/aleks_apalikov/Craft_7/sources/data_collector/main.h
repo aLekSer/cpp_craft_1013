@@ -43,7 +43,7 @@ void start_sending()
 	boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.128" ), 62128 ); 
 	boost::asio::ip::udp::socket socket( service, endp.protocol() );
 	config c(data_path + string("config.ini"));
-	typedef addresses::iterator iter;
+	typedef addresses::const_iterator iter;
 	using namespace boost::asio::ip;
 
 	vector<endpoint> trades;
