@@ -32,9 +32,10 @@ void multicast_communication::market_data_receiver::start()
     for( auto& port: quote_ports_ )
     {
         udp_listener_ptr listener(
-            new udp_listener( quote_service_, port.first, port.second, [this, port](const std::string& block)
+            new udp_listener( quote_service_, port.first, port.second,
+                [ this, port ]( const std::string& block )
                 {
-                        this->quote_handler( block, port.second );
+                    this->quote_handler( block, port.second );
                 } ) );
         quote_udp_listeners_.push_back( listener );
     }
@@ -47,9 +48,10 @@ void multicast_communication::market_data_receiver::start()
     for( auto& port: trade_ports_ )
     {
         udp_listener_ptr listener(
-            new udp_listener( trade_service_, port.first, port.second, [this, port](const std::string& block)
+            new udp_listener( trade_service_, port.first, port.second,
+                [ this, port ]( const std::string& block )
                 {
-                        this->trade_handler( block, port.second );
+                    this->trade_handler( block, port.second );
                 } ) );
         trade_udp_listeners_.push_back( listener );
     }
