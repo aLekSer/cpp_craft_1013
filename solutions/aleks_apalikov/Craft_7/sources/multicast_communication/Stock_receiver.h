@@ -34,6 +34,10 @@ public:
 	{
 		minc->push_quote(q);
 	}
+	void stop()
+	{
+		minc->stop();
+	}
 };
 class minute_market_data;
 class minute_data_call

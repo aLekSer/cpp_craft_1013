@@ -74,8 +74,8 @@ public:
 			}
 			else
 			{
-				boost::shared_ptr<ofstream> sh_of (new ofstream(string(data_path + str 
-					+ ".data").c_str(), //TODO change before pull req
+				boost::shared_ptr<ofstream> sh_of (new ofstream(string(data_path 
+					+ "/stocks/" + str + ".dat").c_str(),
 					ios::binary | ios::out | ios::app));
 				outp.insert(make_pair(str, sh_of));
 				write(vals, *sh_of);

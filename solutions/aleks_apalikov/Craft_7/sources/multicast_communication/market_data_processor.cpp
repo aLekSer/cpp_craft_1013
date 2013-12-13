@@ -39,6 +39,7 @@ outp << quot->msec() << " " << std::setprecision(2);
 
 int market_data_processor::wr_trades( vector_messages& msgs )
 {
+	boost::mutex::scoped_lock lock(mtx);
 	size_t siz = msgs.size();
 	while (!msgs.empty())
 	{
@@ -50,6 +51,7 @@ int market_data_processor::wr_trades( vector_messages& msgs )
 
 int market_data_processor::wr_quotes( vector_messages& msgs )
 {
+	boost::mutex::scoped_lock lock(mtx);
 	size_t siz = msgs.size();
 	while (!msgs.empty())
 	{

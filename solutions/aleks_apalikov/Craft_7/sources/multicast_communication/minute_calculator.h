@@ -73,5 +73,11 @@ public:
 	}
 	inline void push_trade_h( boost::shared_ptr<trade> trad );
 	inline void push_quote_h( boost::shared_ptr<quote> quot );
+	void stop()
+	{
+		shared_map shared_stats;
+		shared_stats = extr;
+		send_data(shared_stats);
+	}
 };
 #endif //_minute_calculator_

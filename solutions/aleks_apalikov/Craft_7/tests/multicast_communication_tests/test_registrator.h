@@ -7,6 +7,7 @@ namespace text_test
 namespace market_data
 {
 	void data_test();
+	void run_with_config();
 
 }
 namespace async_udp

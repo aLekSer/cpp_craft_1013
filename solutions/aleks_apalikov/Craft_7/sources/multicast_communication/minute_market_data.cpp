@@ -13,8 +13,6 @@ void minute_market_data::run_proc()
 minute_market_data::minute_market_data()
 {
 	to_run = true;
-	outp.insert( make_pair("1", 
-		new ofstream((string(data_path + "1.data")).c_str() )) );
 	mc = new minute_calculator(&que);
 	sr = new stock_receiver;
 	w = new worker(mc);
@@ -26,6 +24,9 @@ void minute_market_data::stop()
 {
 	to_run = false;
 	sr->stop();
+	while (process_one() != -1)
+	{
+	}
 }
 
 minute_market_data::~minute_market_data()

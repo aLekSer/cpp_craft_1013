@@ -13,7 +13,33 @@ typedef vector<pair<ip_address, port>> addresses;
 //static const string data_path ("F:/Cpp_Craft/cpp/solutions/aleks_apalikov/Craft_6/sources/data/") ;
 static const string bin_path (BINARY_DIR "/");
 static const string data_path (SOURCE_DIR "/sources/data/");
+typedef vector<ifstream*> vec_ifstr;
+typedef vector<ifstream*>::iterator f_iter;
+inline bool all_empty(vec_ifstr & tr, vec_ifstr & q) //helper functions for tests
+{
+	bool b = true;
+	for (f_iter f = tr.begin(); f != tr.end(); f++)
+	{
+		b &= ((*f)->peek() == EOF);
+	}
+	for (f_iter f = q.begin(); f != q.end(); f++)
+	{
+		b &= ((*f)->peek() == EOF);
+	}
+	return b;
+}
 
+inline void clear_files(vec_ifstr & tr, vec_ifstr & q)
+{
+	for (f_iter f = tr.begin(); f != tr.end(); f++)
+	{
+		delete *f;
+	}
+	for (f_iter f = q.begin(); f != q.end(); f++)
+	{
+		delete *f;
+	}
+}
 class config
 {
 	string file_name;

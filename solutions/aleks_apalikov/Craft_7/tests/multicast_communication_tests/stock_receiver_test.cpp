@@ -8,35 +8,9 @@
 #include <boost/asio.hpp>
 #include "config.h"
 
-typedef vector<ifstream*> vec_ifstr;
-typedef vector<ifstream*>::iterator f_iter;
 typedef boost::asio::ip::udp::endpoint endpoint;
 typedef vector<endpoint>::iterator e_iter;
-bool all_empty(vec_ifstr & tr, vec_ifstr & q)
-{
-	bool b = true;
-	for (f_iter f = tr.begin(); f != tr.end(); f++)
-	{
-		b &= ((*f)->peek() == EOF);
-	}
-	for (f_iter f = q.begin(); f != q.end(); f++)
-	{
-		b &= ((*f)->peek() == EOF);
-	}
-	return b;
-}
 
-void clear_files(vec_ifstr & tr, vec_ifstr & q)
-{
-	for (f_iter f = tr.begin(); f != tr.end(); f++)
-	{
-		delete *f;
-	}
-	for (f_iter f = q.begin(); f != q.end(); f++)
-	{
-		delete *f;
-	}
-}
 void async_udp::receiver_test()
 {
 	{

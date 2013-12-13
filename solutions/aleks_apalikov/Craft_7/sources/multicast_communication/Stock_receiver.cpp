@@ -134,6 +134,7 @@ void stock_receiver::service_run(shared_service serv)
 void stock_receiver::stop()
 {
 	vector<shared_service>::iterator it;
+	work->stop();
 	processor.close();
 	for (it = quote_services.begin(); it != quote_services.end(); it++)
 	{
