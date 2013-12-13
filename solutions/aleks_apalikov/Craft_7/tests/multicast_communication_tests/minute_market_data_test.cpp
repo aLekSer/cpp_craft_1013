@@ -64,7 +64,7 @@ void market_data::run_with_config()
 		cout << "Total messages was parsed and passed: " << message::count << endl; 
 	
 
-		boost::this_thread::sleep_for( boost::chrono::seconds( 5 ) );
+		boost::this_thread::sleep_for( boost::chrono::seconds( 10 ) );
 		md.stop();
 	}
 }
