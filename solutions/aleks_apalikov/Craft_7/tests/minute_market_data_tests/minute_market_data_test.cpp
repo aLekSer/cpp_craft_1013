@@ -22,13 +22,9 @@ void market_data::data_test()
 
 		}
 
-		int i = 0;
-		while( i < 100 )
-		{
-			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 10000 ) );
-			i++;
+		boost::this_thread::sleep_for( boost::chrono::seconds( 100 ) );
 			//			md.process_one();
-		}
+		
 		md.stop();
 	}
 	/*{

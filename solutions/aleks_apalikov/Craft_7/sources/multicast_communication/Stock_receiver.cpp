@@ -85,6 +85,7 @@ int stock_receiver::wait_some_data()
 			{
 				boost::shared_ptr<trade> sp = boost::static_pointer_cast<trade, message>(*it);
 				(*work)(sp);
+				sp.reset();
 			}
 			if(processor.wr_trades(msgs) != 0)
 				ret_val = static_cast<int>( i );
@@ -106,6 +107,7 @@ int stock_receiver::wait_some_data()
 			{
 				boost::shared_ptr<quote> sp = boost::static_pointer_cast<quote, message>(*it);
 				(*work)(sp);
+				sp.reset();
 			}
 			if(processor.wr_quotes(msgs) != 0)
 				return static_cast<int>( i );

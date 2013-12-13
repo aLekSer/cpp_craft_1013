@@ -34,9 +34,8 @@ class minute_market_data
 		while (to_run)
 		{
 			sr.wait_some_data();
-			boost::this_thread::sleep_for(boost::chrono::nanoseconds(1000));
+			boost::this_thread::sleep_for(boost::chrono::nanoseconds(10));
 		}
-		stop();
 	}
 public:
 	explicit minute_market_data()

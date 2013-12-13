@@ -206,14 +206,22 @@ class quote: public message
 	double offer_price_;
 	double offer_volume_;
 public:
-	double bid_denom()
+	char bid_denom()
 	{ return bid_denom_; }
+	double bid_divider()
+	{
+		return denominator(bid_denom_);
+	}
 	double bid_price()
 	{ return bid_price_; }
 	double bid_volume()
 	{ return bid_volume_; }
 	char offer_denom()
 	{ return offer_denom_; }
+	double offer_divider()
+	{
+		return denominator(offer_denom_);
+	}
 	double offer_price()
 	{ return offer_price_; }
 	double offer_volume() 
@@ -269,6 +277,10 @@ private:
 public:
 	char  denom()
 	{ return denom_; }
+	double divider()
+	{
+		return denominator(denom_);
+	}
 	double price()
 	{ return  price_; }
 	double volume()

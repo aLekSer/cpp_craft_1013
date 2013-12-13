@@ -31,7 +31,7 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 		}
 		vals->minute = trad->minute();
 		strcpy(vals->stock_name, st);
-		double price = trad->price() / trad->denom();
+		double price = trad->price() / trad->divider();
 		if(trad->msec() < vals->first_msec)
 		{
 			vals->first_msec = trad->msec();
