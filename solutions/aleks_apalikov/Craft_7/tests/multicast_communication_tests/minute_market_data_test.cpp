@@ -13,7 +13,7 @@ void market_data::data_test()
 		ifstream fs( string(data_path + "minut_dat" + ".udp").c_str()) ;
 		stringstream ss;
 		minute_market_data md;
-		md.run();
+//		md.run();
 		while (fs.peek() != EOF)
 		{
 			message::read_block(ss, fs);

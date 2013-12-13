@@ -16,6 +16,7 @@ minute_market_data::minute_market_data()
 	outp.insert( make_pair("1", 
 		new ofstream((string(data_path + "1.data")).c_str() )) );
 	mc = new minute_calculator(&que);
+	sr = new stock_receiver;
 	w = new worker(mc);
 	mdc = new minute_data_call(this);
 	sr->add_callback(w, mdc);
@@ -33,7 +34,30 @@ minute_market_data::~minute_market_data()
 	{
 		que.pop();
 	}
-	delete mc;
-	delete w;
 	close();
+	erase_output();
+	if (mc)
+	{
+		delete mc;
+	}
+	if (w)
+	{
+		delete w;
+	}
+	if (sr)
+	{
+		delete sr;
+	}
+	if (mdc)
+	{
+		delete mdc;
+	}
+}
+
+void minute_market_data::erase_output()
+{
+	for(streams::iterator i = outp.begin(); i != outp.end(); i++)
+	{
+		i->second.reset();
+	}
 }

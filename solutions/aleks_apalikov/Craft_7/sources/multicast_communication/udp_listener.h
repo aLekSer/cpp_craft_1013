@@ -13,9 +13,10 @@ class stock_receiver;
 class callable_obj
 {
 	stock_receiver* sr;
+	bool quotes;
 public:
-	callable_obj(stock_receiver* st_rec = NULL);
-	void operator() (std::string& buf);
+	callable_obj(stock_receiver* st_rec = NULL, bool quotes = true);
+	void operator() (boost::shared_ptr<string> buf);
 };
 
 	class udp_listener : virtual private boost::noncopyable

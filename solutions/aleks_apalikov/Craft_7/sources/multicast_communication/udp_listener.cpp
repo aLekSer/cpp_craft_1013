@@ -71,7 +71,9 @@ void udp_listener::listen_handler_( buffer_type bt, const boost::system::error_c
 	{
 		{
 			boost::mutex::scoped_lock lock( protect_messages_ );
-			messages_.push_back( std::string( bt->c_str(), bytes_received ) );
+//			messages_.push_back( std::string( bt->c_str(), bytes_received ) );
+			boost::shared_ptr<std::string> sp(new std::string( bt->c_str(), bytes_received ));
+			callback(sp);
 		}
 		register_listen_();
 	}
@@ -82,13 +84,13 @@ void udp_listener::enlarge_buffer_( buffer_type& bt )
 	bt->resize( bt->size() + default_buffer_size );
 }
 
-callable_obj::callable_obj( stock_receiver* st_rec )
+callable_obj::callable_obj( stock_receiver* st_rec , bool is_quot ): quotes (is_quot)
 {
 	sr = st_rec;
 }
 
-void callable_obj::operator()( std::string& buf )
+void callable_obj::operator()( boost::shared_ptr<string> buf )
 {
 	if(sr != NULL)
-		sr->wait_some_data();
+		sr->write_buf(buf, quotes);
 }

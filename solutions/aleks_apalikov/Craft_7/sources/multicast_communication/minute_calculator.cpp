@@ -2,7 +2,7 @@
 
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
-//	boost::mutex::scoped_lock lock(calc_mtx);
+	boost::mutex::scoped_lock lock(calc_mtx);
 	bool insert = false;
 	if(trad.use_count() == 0)
 	{
@@ -70,7 +70,7 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 
 void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
-	//	boost::mutex::scoped_lock lock(calc_mtx);
+	boost::mutex::scoped_lock lock(calc_mtx);
 	bool insert = false;
 	if(quot.use_count() == 0)
 	{

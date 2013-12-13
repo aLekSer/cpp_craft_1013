@@ -7,7 +7,8 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 	c.get_trades();
 	c.trade_threads();
 	c.quote_threads();
-	co = new callable_obj(this);
+	trad_co = new callable_obj(this, false);
+	quot_co = new callable_obj(this, true);
 
 	init_services( quote_services, c, true);	
 	init_services(trade_services, c, false);
@@ -30,10 +31,15 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 
 stock_receiver::~stock_receiver(void)
 {
+	if(work)
+		delete work;
+	if(trad_co)
+		delete trad_co;
+	if(quot_co)
+		delete quot_co;
+	if(mdc)
+		delete mdc;
 	stop();
-	del_listeners(true);
-	del_listeners(false);
-	delete co;
 }
 
 void stock_receiver::init_services( vector<shared_service> & vs, config & c, const bool quotes )
@@ -58,6 +64,7 @@ void stock_receiver::init_listeners( const bool quotes )
 	listeners_vec  & lv = quotes ? quote_listeners :  trade_listeners;
 	vector<shared_service> & vs = quotes ? quote_services : trade_services;
 	size_t siz = quotes ? c.quote_ports() : c.trade_ports();
+	callable_obj & co = quotes ? *quot_co : *trad_co;
 	const addresses & a = quotes ? c.get_quotes() : c.get_trades();
 	if (a.size() == 0)
 	{
@@ -66,7 +73,7 @@ void stock_receiver::init_listeners( const bool quotes )
 	lv.reserve(a.size());
 	for(size_t i = 0; i < siz; i++)
 	{
-		udp_listener* sp = new udp_listener(*vs[i], a[i].first, a[i].second, *co);
+		udp_listener* sp = new udp_listener(*vs[i], a[i].first, a[i].second, co);
 		lv.push_back (sp);
 	}
 }
@@ -140,6 +147,8 @@ void stock_receiver::stop()
 		(*(it))->stop();
 	}
 	threads.join_all();
+	del_listeners(true);
+	del_listeners(false);
 }
 
 void stock_receiver::add_callback( worker* w, minute_data_call* mc )
@@ -165,6 +174,32 @@ void stock_receiver::del_listeners(bool quotes)
 	}
 	
 }
+
+void stock_receiver::write_buf( boost::shared_ptr<string> str, bool quotes )
+{
+	vector_messages msgs;
+	 str;
+	message::divide_messages(msgs, str, false);
+	for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
+	{
+		if(!quotes)
+		{
+			boost::shared_ptr<trade> sp = boost::static_pointer_cast<trade, message>(*it);
+			(*work)(sp);
+			(*mdc) ();
+			sp.reset();
+		}
+		else
+		{
+			boost::shared_ptr<quote> sp = boost::static_pointer_cast<quote, message>(*it);
+			(*work)(sp);
+			(*mdc) ();
+			sp.reset();
+		}
+	}
+	quotes ? processor.wr_trades(msgs) : processor.wr_quotes(msgs);
+}
+
 
 void minute_data_call::operator()() /*for writing */
 {

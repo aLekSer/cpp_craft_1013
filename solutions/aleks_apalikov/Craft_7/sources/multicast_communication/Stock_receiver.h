@@ -55,7 +55,8 @@ class stock_receiver
 	vector<shared_service> quote_services;
 	vector<shared_service> trade_services;
 	boost::thread_group threads;
-	callable_obj* co;
+	callable_obj* trad_co;
+	callable_obj* quot_co;
 	listeners_vec quote_listeners;
 	listeners_vec trade_listeners;
 	market_data_processor processor;
@@ -67,6 +68,7 @@ class stock_receiver
 public:
 	int wait_some_data();
 	void add_callback(worker* work, minute_data_call* mc);
+	void write_buf( boost::shared_ptr<string> str, bool quotes );
 	void service_run(shared_service serv);
 	stock_receiver(char * str = "");
 	void stop();

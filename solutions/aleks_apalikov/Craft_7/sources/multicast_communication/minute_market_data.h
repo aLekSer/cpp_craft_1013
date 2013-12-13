@@ -102,11 +102,13 @@ public:
 		write_binary(fs, e->ask);
 		fs.flush();
 	}
+protected:
 	void run()
 	{
 		net = boost::thread(boost::bind(&minute_market_data::run_proc, this));
 		writer = boost::thread(boost::bind(&minute_market_data::process_func, this));
 	}
+public:
 	void stop();
 	void close()
 	{
@@ -115,6 +117,6 @@ public:
 			i->second->close();
 		}
 	}
-
+	void erase_output();
 };
 #endif //_minute_market_data_
