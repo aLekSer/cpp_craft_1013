@@ -3,6 +3,10 @@ namespace text_test
 {
 	void read_config();
 	void quote_trade_parse();
+}
+namespace market_data
+{
+	void data_test();
 
 }
 namespace async_udp

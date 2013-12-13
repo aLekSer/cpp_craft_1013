@@ -4,11 +4,11 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "../multicast_communication/message_parser.h"
+#include "message_parser.h"
 #include <vector>
 #include <stdint.h>
 #include "boost/shared_ptr.hpp"
-#include "../minute_market_data/thread_safe_queue.h"
+#include "thread_safe_queue.h"
 
 enum{
 	sn_size = 16

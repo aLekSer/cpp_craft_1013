@@ -5,7 +5,7 @@ project( ${SOLUTION_NAME} )
 include( environment.cmake required )
 set (VERBOSE  TRUE)
 
-modules( minute_market_data multicast_communication )
+modules( multicast_communication )
 binaries( data_collector )
 
 compile()
