@@ -15,6 +15,7 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 
 	init_listeners(true);
 	init_listeners(false);
+	deleted = false;
 
 	size_t denom = c.get_trades().size();
 	for(size_t i = 0; i < c.trade_threads() && denom != 0; i++ )
@@ -31,14 +32,10 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 
 stock_receiver::~stock_receiver(void)
 {
-	if(work)
-		delete work;
 	if(trad_co)
 		delete trad_co;
 	if(quot_co)
 		delete quot_co;
-	if(mdc)
-		delete mdc;
 	stop();
 }
 
@@ -149,6 +146,7 @@ void stock_receiver::stop()
 	threads.join_all();
 	del_listeners(true);
 	del_listeners(false);
+	deleted = true;
 }
 
 void stock_receiver::add_callback( worker* w, minute_data_call* mc )
@@ -164,6 +162,10 @@ void stock_receiver::del_listeners(bool quotes)
 	size_t siz = quotes ? c.quote_ports() : c.trade_ports();
 	const addresses & a = quotes ? c.get_quotes() : c.get_trades();
 	if (a.size() == 0)
+	{
+		return;
+	}
+	if(deleted = true)
 	{
 		return;
 	}

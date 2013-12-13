@@ -70,5 +70,6 @@ public:
 	{
 		return extr;
 	}
+	inline void push_trade_h( boost::shared_ptr<trade> trad );
 };
 #endif //_minute_calculator_
