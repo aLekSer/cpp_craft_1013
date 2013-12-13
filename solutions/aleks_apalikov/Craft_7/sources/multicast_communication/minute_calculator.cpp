@@ -19,51 +19,16 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
 	boost::mutex::scoped_lock lock(calc_mtx);
-	bool insert = false;
-	if(quot.use_count() == 0)
-	{
-		return;
-	}
-	if(uninit)
-	{
-		minute = quot->minute();
-		uninit = false;
-		extr.reset(new map_extr);
-	}
-	if(quot->minute() == minute)
-	{
-		char st [sn_size];
-		minute = quot->get_time();
-		strcpy(st, quot->security_symbol().c_str());
-		map_extr::iterator i = extr->find(string (st));
-		if(i != extr->end())
-		{
-			vals = (*i).second;
-		}
-		else
-		{
-			vals.reset(new minute_extremums);
-			insert = true;
-		}
-		vals->minute = quot->minute();
-		strcpy(vals->stock_name, st);
-		vals->bid += quot->bid_volume(); 
-		vals->ask += quot->offer_volume();
-
-		if(insert)
-		{
-			extr->insert(make_pair(string(vals->stock_name), vals));
-		}
-
-	}
-	else if(quot->minute() > minute)
+	push_quote_h(quot);
+	return;
+	if(quot->minute() > minute)
 	{
 		shared_map shared_stats;
 		shared_stats = extr;
 		send_data(shared_stats);
 		extr.reset(new map_extr);
 		minute = quot->minute();
-		push_quote(quot);
+		push_quote_h(quot);
 	}
 	vals.reset();
 }
@@ -126,5 +91,46 @@ void minute_calculator::push_trade_h( boost::shared_ptr<trade> trad )
 		{
 			extr->insert(make_pair(string(vals->stock_name), vals));
 		}
+	}
+}
+
+void minute_calculator::push_quote_h( boost::shared_ptr<quote> quot )
+{
+	bool insert = false;
+	if(quot.use_count() == 0)
+	{
+		return;
+	}
+	if(uninit)
+	{
+		minute = quot->minute();
+		uninit = false;
+		extr.reset(new map_extr);
+	}
+	if(quot->minute() == minute)
+	{
+		char st [sn_size];
+		minute = quot->get_time();
+		strcpy(st, quot->security_symbol().c_str());
+		map_extr::iterator i = extr->find(string (st));
+		if(i != extr->end())
+		{
+			vals = (*i).second;
+		}
+		else
+		{
+			vals.reset(new minute_extremums);
+			insert = true;
+		}
+		vals->minute = quot->minute();
+		strcpy(vals->stock_name, st);
+		vals->bid += quot->bid_volume(); 
+		vals->ask += quot->offer_volume();
+
+		if(insert)
+		{
+			extr->insert(make_pair(string(vals->stock_name), vals));
+		}
+
 	}
 }

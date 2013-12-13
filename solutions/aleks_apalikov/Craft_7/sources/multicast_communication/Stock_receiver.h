@@ -65,7 +65,7 @@ class stock_receiver
 	static void init_services(vector<shared_service> & vs, config & c, const bool quotes);
 	void init_listeners( bool quotes);
 	config c;
-	bool deleted;
+	bool deleted[2];
 public:
 	int wait_some_data();
 	void add_callback(worker* work, minute_data_call* mc);

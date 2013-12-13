@@ -66,10 +66,12 @@ public:
 	}
 	void push_trade( boost::shared_ptr<trade> trad);
 	void push_quote( boost::shared_ptr<quote> quot);
+
 	shared_map get_stat()
 	{
 		return extr;
 	}
 	inline void push_trade_h( boost::shared_ptr<trade> trad );
+	inline void push_quote_h( boost::shared_ptr<quote> quot );
 };
 #endif //_minute_calculator_
