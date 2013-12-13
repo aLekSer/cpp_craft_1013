@@ -22,7 +22,7 @@ void market_data::data_test()
 
 		}
 
-		boost::this_thread::sleep_for( boost::chrono::seconds( 100 ) );
+		boost::this_thread::sleep_for( boost::chrono::seconds( 5 ) );
 			//			md.process_one();
 		
 		md.stop();
