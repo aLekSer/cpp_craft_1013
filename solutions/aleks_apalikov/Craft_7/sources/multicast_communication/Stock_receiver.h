@@ -21,7 +21,7 @@ class worker
 {
 	minute_calculator* minc;
 public:
-	worker(minute_calculator* mc): minc (mc)
+	explicit worker(minute_calculator* mc): minc (mc)
 	{
 
 	}

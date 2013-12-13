@@ -22,7 +22,7 @@ public:
 	class udp_listener : virtual private boost::noncopyable
 	{
 		static const size_t default_buffer_size;
-		callable_obj& callback;
+		callable_obj* callback;
 
 		boost::asio::io_service& io_service_;
 
@@ -37,7 +37,7 @@ public:
 		std::vector< std::string > messages_;
 
 	public:
-		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj co);
+		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj* co);
 		~udp_listener();
 		const std::vector< std::string > messages() const;
 		boost::shared_ptr<std::string> messages_pop()

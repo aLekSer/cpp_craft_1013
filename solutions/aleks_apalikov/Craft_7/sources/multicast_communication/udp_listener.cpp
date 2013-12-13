@@ -4,7 +4,7 @@
 
 const size_t udp_listener::default_buffer_size = 1000ul;
 
-udp_listener::udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj co )
+udp_listener::udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj* co )
 	: io_service_( io_service )
 	, listen_endpoint_( boost::asio::ip::address::from_string( "0.0.0.0" ), port )
 	, socket_( io_service_ )
@@ -73,7 +73,7 @@ void udp_listener::listen_handler_( buffer_type bt, const boost::system::error_c
 			boost::mutex::scoped_lock lock( protect_messages_ );
 //			messages_.push_back( std::string( bt->c_str(), bytes_received ) );
 			boost::shared_ptr<std::string> sp(new std::string( bt->c_str(), bytes_received ));
-			callback(sp);
+			(*callback)(sp);
 		}
 		register_listen_();
 	}

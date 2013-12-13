@@ -64,7 +64,7 @@ void stock_receiver::init_listeners( const bool quotes )
 	listeners_vec  & lv = quotes ? quote_listeners :  trade_listeners;
 	vector<shared_service> & vs = quotes ? quote_services : trade_services;
 	size_t siz = quotes ? c.quote_ports() : c.trade_ports();
-	callable_obj & co = quotes ? *quot_co : *trad_co;
+	callable_obj * co = quotes ? quot_co : trad_co;
 	const addresses & a = quotes ? c.get_quotes() : c.get_trades();
 	if (a.size() == 0)
 	{
@@ -197,7 +197,7 @@ void stock_receiver::write_buf( boost::shared_ptr<string> str, bool quotes )
 			sp.reset();
 		}
 	}
-	quotes ? processor.wr_trades(msgs) : processor.wr_quotes(msgs);
+	quotes ? processor.wr_quotes(msgs): processor.wr_trades(msgs) ;
 }
 
 
