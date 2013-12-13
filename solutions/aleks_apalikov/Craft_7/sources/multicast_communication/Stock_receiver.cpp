@@ -7,6 +7,7 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 	c.get_trades();
 	c.trade_threads();
 	c.quote_threads();
+	co = new callable_obj(this);
 
 	init_services( quote_services, c, true);	
 	init_services(trade_services, c, false);
@@ -30,6 +31,9 @@ stock_receiver::stock_receiver(char * str): c(config (data_path + string("config
 stock_receiver::~stock_receiver(void)
 {
 	stop();
+	del_listeners(true);
+	del_listeners(false);
+	delete co;
 }
 
 void stock_receiver::init_services( vector<shared_service> & vs, config & c, const bool quotes )
@@ -62,8 +66,7 @@ void stock_receiver::init_listeners( const bool quotes )
 	lv.reserve(a.size());
 	for(size_t i = 0; i < siz; i++)
 	{
-		boost::shared_ptr<udp_listener> sp;
-		sp.reset(new udp_listener(*vs[i], a[i].first, a[i].second));
+		udp_listener* sp = new udp_listener(*vs[i], a[i].first, a[i].second, *co);
 		lv.push_back (sp);
 	}
 }
@@ -139,7 +142,31 @@ void stock_receiver::stop()
 	threads.join_all();
 }
 
-void stock_receiver::add_callback( worker* w )
+void stock_receiver::add_callback( worker* w, minute_data_call* mc )
 {
 	work = w;
+	mdc = mc;
+}
+
+void stock_receiver::del_listeners(bool quotes)
+{
+	listeners_vec  & lv = quotes ? quote_listeners :  trade_listeners;
+	vector<shared_service> & vs = quotes ? quote_services : trade_services;
+	size_t siz = quotes ? c.quote_ports() : c.trade_ports();
+	const addresses & a = quotes ? c.get_quotes() : c.get_trades();
+	if (a.size() == 0)
+	{
+		return;
+	}
+	for(size_t i = 0; i < siz; i++)
+	{
+		delete lv.back ();
+		lv.pop_back();
+	}
+	
+}
+
+void minute_data_call::operator()() /*for writing */
+{
+	mmd->process_one();
 }

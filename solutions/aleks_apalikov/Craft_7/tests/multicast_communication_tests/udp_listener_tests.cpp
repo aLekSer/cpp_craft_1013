@@ -25,12 +25,14 @@ void async_udp::tests_::udp_listener_tests()
 	BOOST_CHECK_NO_THROW
 	( 
 		boost::asio::io_service service;
-		udp_listener uw( service, "224.0.0.0", 50000 );
+		callable_obj co;
+		udp_listener uw( service, "224.0.0.0", 50000, co);
 	);
 
 	{
+		callable_obj co;
 		boost::asio::io_service service;
-		udp_listener uw( service, "224.0.0.0", 50000 );
+		udp_listener uw( service, "224.0.0.0", 50000, co);
 
 		const std::string buffer( "hello world" );
 		boost::asio::ip::udp::endpoint endpoint( boost::asio::ip::address::from_string( "224.0.0.0" ), 50000 ); 
@@ -46,8 +48,9 @@ void async_udp::tests_::udp_listener_tests()
 		BOOST_CHECK_EQUAL( strcmp( uw.messages()[0].c_str(), "hello world" ), 0 );
 	}
 	{
+		callable_obj co;
 		boost::asio::io_service service;
-		udp_listener uw( service, "224.0.0.0", 50000 );
+		udp_listener uw( service, "224.0.0.0", 50000, co );
 
 		const std::string buffer( "smells like teen spirit!!!" );
 		boost::asio::ip::udp::endpoint endpoint( boost::asio::ip::address::from_string( "224.0.0.0" ), 50000 ); 
@@ -63,8 +66,9 @@ void async_udp::tests_::udp_listener_tests()
 		BOOST_CHECK_EQUAL( strcmp( uw.messages()[0].c_str(), "smells like teen spirit!!!"), 0 );
 	}
 	{
+		callable_obj co;
 		boost::asio::io_service service;
-		udp_listener uw( service, "224.0.0.0", 50000 );
+		udp_listener uw( service, "224.0.0.0", 50000, co );
 		boost::asio::ip::udp::endpoint endpoint( boost::asio::ip::address::from_string( "224.0.0.0" ), 50000 ); 
 		boost::asio::ip::udp::socket socket( service, endpoint.protocol() );
 		boost::thread receive_messages( boost::bind( detail::service_thread, boost::ref( service ) ) );

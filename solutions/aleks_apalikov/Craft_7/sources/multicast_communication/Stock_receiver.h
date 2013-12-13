@@ -5,11 +5,12 @@
 #include "boost/asio.hpp"
 #include "udp_listener.h"
 #include <vector>
-#include "../multicast_communication/minute_calculator.h"
+#include "minute_calculator.h"
 #include "boost/thread.hpp"
 #include "message_parser.h"
 #include <stdexcept>
 #include "market_data_processor.h"
+#include "minute_market_data.h"
 
 using namespace std;
 using namespace async_udp;
@@ -34,26 +35,42 @@ public:
 		minc->push_quote(q);
 	}
 };
+class minute_market_data;
+class minute_data_call
+{
+	minute_market_data* mmd;
+public:
+	explicit minute_data_call(minute_market_data* minut_data)
+	{
+		mmd = minut_data;
+	}
+	void operator() (); //for writing;
+};
+class udp_listener;
+typedef vector<udp_listener*> listeners_vec;
+class callable_obj;
 class stock_receiver
 {
 	typedef boost::shared_ptr<boost::asio::io_service> shared_service;
 	vector<shared_service> quote_services;
 	vector<shared_service> trade_services;
 	boost::thread_group threads;
-	typedef vector<boost::shared_ptr<udp_listener>> listeners_vec;
+	callable_obj* co;
 	listeners_vec quote_listeners;
 	listeners_vec trade_listeners;
 	market_data_processor processor;
 	worker* work;
+	minute_data_call* mdc;
 	static void init_services(vector<shared_service> & vs, config & c, const bool quotes);
 	void init_listeners( bool quotes);
 	config c;
 public:
 	int wait_some_data();
-	void add_callback(worker* work);
+	void add_callback(worker* work, minute_data_call* mc);
 	void service_run(shared_service serv);
 	stock_receiver(char * str = "");
 	void stop();
 	~stock_receiver(void);
+	void del_listeners(bool quotes);
 };
 #endif

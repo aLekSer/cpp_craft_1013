@@ -7,12 +7,21 @@
 #include <boost/noncopyable.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include "Stock_receiver.h"
 
-namespace async_udp
+class stock_receiver;
+class callable_obj
 {
+	stock_receiver* sr;
+public:
+	callable_obj(stock_receiver* st_rec = NULL);
+	void operator() (std::string& buf);
+};
+
 	class udp_listener : virtual private boost::noncopyable
 	{
 		static const size_t default_buffer_size;
+		callable_obj& callback;
 
 		boost::asio::io_service& io_service_;
 
@@ -27,7 +36,7 @@ namespace async_udp
 		std::vector< std::string > messages_;
 
 	public:
-		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port );
+		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj co);
 		~udp_listener();
 		const std::vector< std::string > messages() const;
 		boost::shared_ptr<std::string> messages_pop()
@@ -48,6 +57,6 @@ namespace async_udp
 		void listen_handler_( buffer_type bt, const boost::system::error_code& error, const size_t bytes_received );
 		static void enlarge_buffer_( buffer_type& bt );
 	};
-}
+
 
 #endif // _ASYNC_UDP_UDP_LISTENER_H_
