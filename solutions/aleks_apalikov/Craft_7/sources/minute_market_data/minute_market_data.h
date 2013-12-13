@@ -14,6 +14,7 @@
 #include "../multicast_communication/config.h"
 #include "../multicast_communication/Stock_receiver.h"
 #include "boost/chrono.hpp"
+#include "../multicast_communication/message_parser.h"
 
 using namespace std;
 class minute_market_data
@@ -26,6 +27,7 @@ class minute_market_data
 	
 	streams outp;
 	boost::thread net;
+	boost::thread writer;
 	thread_safe_queue<shared_map> que;
 	bool to_run;
 	boost::mutex mtx;
@@ -66,7 +68,14 @@ public:
 	{
 		mc->push_quote(q);
 	}
-	
+	void process_func()
+	{
+		while(to_run)
+		{
+			process_one();
+			boost::this_thread::sleep_for(boost::chrono::nanoseconds(100));
+		}
+	}
 	int process_one()
 	{
 		shared_map m;
@@ -76,9 +85,24 @@ public:
 		}
 		for (map_extr::iterator i = m->begin(); i != m->end(); ++i)
 		{
+			streams::iterator search = outp.find(i->first );
+
 			string str = i->first;
 			shared_extremums vals = i->second;
-			write(vals, *outp["1"]);
+			if (search != outp.end())
+			{
+				write(vals, *(search->second));
+				search->second->flush();
+			}
+			else
+			{
+				boost::shared_ptr<ofstream> sh_of (new ofstream(string(data_path + str 
+					+ ".data").c_str(), //TODO change before pull req
+					ios::binary | ios::out | ios::app));
+				outp.insert(make_pair(str, sh_of));
+				write(vals, *sh_of);
+				sh_of->flush();
+			}
 		}
 		return 0;
 	}
@@ -88,45 +112,22 @@ public:
 		{
 			return ;
 		}
-		fs << e->minute << " " << e->stock_name << " ";
-		if(e->open_price > 0)
-		{
-			fs << e->open_price << " ";
-		}
-		else 
-			fs << "  ";
-
-		if(e->high_price > 0)
-		{
-			fs << e->high_price << " ";
-			fs << e->low_price << " ";
-			fs << e->close_price << " ";
-		}
-		else
-			fs << "\t\t";
-		if(e->volume > 0)
-		{
-			fs << e->volume << " ";
-		}
-		else
-			fs << "  ";
-		if(e->bid > 0)
-		{
-			fs << e->bid << " ";
-		}
-		else
-			fs << "  ";
-
-		if(e->ask > 0)
-		{
-			fs << e->ask << " ";
-		}
-		else
-			fs << "  ";		
+//		write_binary(fs, *e);
+		write_binary(fs, e->minute);
+		write_binary(fs, e->stock_name, 16);
+		write_binary(fs, e->open_price);
+		write_binary(fs, e->high_price);
+		write_binary(fs, e->low_price);
+		write_binary(fs, e->close_price);
+		write_binary(fs, e->volume);
+		write_binary(fs, e->bid);
+		write_binary(fs, e->ask);
+		fs.flush();
 	}
 	void run()
 	{
 		net = boost::thread(boost::bind(&minute_market_data::run_proc, this));
+		writer = boost::thread(boost::bind(&minute_market_data::process_func, this));
 	}
 	void stop()
 	{
