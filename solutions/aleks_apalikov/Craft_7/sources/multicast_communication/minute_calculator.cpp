@@ -25,7 +25,7 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
 	message::denominator(quot->bid_denom());
 	message::denominator(quot->offer_denom());
-	if(quot->bid_price() < 0 || quot->offer_price() < 0 || quot->bid_volume() 
+	if(quot->bid_price() < 0 || quot->offer_price() < 0 || quot->bid_volume() < 0
 		|| quot->offer_volume() < 0)
 	{
 		return;

@@ -7,7 +7,7 @@ int market_data_processor::wr_trade( shared_trade trad )
 		cout<< "market_data_processor error" << endl;
 	}
 	outp << "T " << std::fixed << trad->security_symbol() << " " ;
-outp << trad->msec() << " " << std::setprecision(2); 
+outp << std::setprecision(2); 
 	if(trad->divider() < 0)
 		outp << " ";
 	else
@@ -23,7 +23,7 @@ int market_data_processor::wr_quote( shared_quote quot )
 		cout<< "market_data_processor error" << endl;
 	}
 	outp << "Q " << std::fixed << quot->security_symbol() << " ";
-outp << quot->msec() << " " << std::setprecision(2);
+outp << std::setprecision(2);
  if(quot->bid_divider() > 0) 
 		outp << ( quot->bid_price() / quot->bid_divider() ) << " ";
 	else 
