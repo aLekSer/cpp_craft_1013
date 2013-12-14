@@ -37,17 +37,18 @@ minute_market_data::~minute_market_data()
 	}
 	close();
 	erase_output();
+	if (sr)
+	{
+		delete sr;
+	}
 	if (mc)
 	{
 		delete mc;
+		mc = NULL;
 	}
 	if (w)
 	{
 		delete w;
-	}
-	if (sr)
-	{
-		delete sr;
 	}
 	if (mdc)
 	{

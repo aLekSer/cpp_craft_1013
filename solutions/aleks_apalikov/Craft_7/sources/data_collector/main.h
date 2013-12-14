@@ -13,30 +13,6 @@ typedef vector<ifstream*> vec_ifstr;
 typedef vector<ifstream*>::iterator f_iter;
 typedef boost::asio::ip::udp::endpoint endpoint;
 typedef vector<endpoint>::iterator e_iter;
-bool all_empty(vec_ifstr & tr, vec_ifstr & q)
-{
-	bool b = true;
-	for (f_iter f = tr.begin(); f != tr.end(); f++)
-	{
-		b &= ((*f)->peek() == EOF);
-	}
-	for (f_iter f = q.begin(); f != q.end(); f++)
-	{
-		b &= ((*f)->peek() == EOF);
-	}
-	return b;
-}
-void clear_files(vec_ifstr & tr, vec_ifstr & q) //could add close files invoke
-{
-	for (f_iter f = tr.begin(); f != tr.end(); f++)
-	{
-		delete *f;
-	}
-	for (f_iter f = q.begin(); f != q.end(); f++)
-	{
-		delete *f;
-	}
-}
 void start_sending()
 {
 	boost::asio::io_service service;
@@ -51,14 +27,14 @@ void start_sending()
 	for (iter i = c.get_trades().begin(); i != c.get_trades().end(); ++i )
 	{
 		trades.push_back( endpoint(address::from_string( i->first ), i->second ));
-		trade_files.push_back(new ifstream ( string(data_path + i->first + ".udp").c_str()) );
+		trade_files.push_back(new ifstream (string(data_path + i->first + ".udp").c_str()) );
 	}
 	vector<endpoint> quotes;
 	vec_ifstr quote_files;
 	for (iter q = c.get_quotes().begin(); q != c.get_quotes().end(); ++q )
 	{
 		quotes.push_back( endpoint(address::from_string( q->first ), q->second ));
-		quote_files.push_back(new ifstream (string(data_path + q->first + ".udp").c_str() ) );
+		quote_files.push_back(new ifstream ( string(data_path + q->first + ".udp").c_str()) );
 	}
 
 	while (!all_empty(quote_files, trade_files))
@@ -85,9 +61,11 @@ void start_sending()
 				ss.str("");
 			}	
 		}
-		boost::this_thread::sleep_for( boost::chrono::nanoseconds( 10 ) );
+		boost::this_thread::sleep_for( boost::chrono::nanoseconds( 100 ) );
 	}
+
 	clear_files(trade_files, quote_files);
+	cout << "Total messages was parsed and passed: " << message::count << endl; 
 
 }
 #endif

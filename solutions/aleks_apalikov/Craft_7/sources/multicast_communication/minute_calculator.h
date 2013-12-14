@@ -75,6 +75,8 @@ public:
 	inline void push_quote_h( boost::shared_ptr<quote> quot );
 	void stop()
 	{
+		if(extr.use_count() == 0)
+			return;
 		shared_map shared_stats;
 		shared_stats = extr;
 		send_data(shared_stats);

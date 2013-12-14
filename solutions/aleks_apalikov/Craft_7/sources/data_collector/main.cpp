@@ -20,15 +20,16 @@ int main ( int argc, char* argv[] )
 	boost::thread send(&start_sending);
 #endif
 
-	stock_receiver sr;
+	minute_market_data md;
 	cout << "Data_collector is running" << endl;
 	while (!stop)
 	{
-		boost::this_thread::sleep_for( boost::chrono::nanoseconds( 10 ) );
-		sr.wait_some_data();
+		boost::this_thread::sleep_for( boost::chrono::milliseconds( 50 ) );
 	}
-	sr.stop();
-	cout << "Program was interrupted, market data saved in market_data.dat output file "<< endl;
+
+	md.stop();
+	cout << "Program was interrupted, market data saved in market_data.dat output file, "
+		"check stats in sources/data/stats dir "<< endl;
 
 
 	return 0;

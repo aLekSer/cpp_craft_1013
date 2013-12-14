@@ -36,7 +36,8 @@ public:
 	}
 	void stop()
 	{
-		minc->stop();
+		if(minc != NULL)
+			minc->stop();
 	}
 };
 class minute_market_data;
