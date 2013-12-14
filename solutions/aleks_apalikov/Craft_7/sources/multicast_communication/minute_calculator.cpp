@@ -3,7 +3,7 @@
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
 	message::denominator(trad->denom());
-	if(trad->price() < 0 | trad->volume() < 0)
+	if(trad->price() < 0 || trad->volume() < 0)
 	{
 		return;
 	}
@@ -145,4 +145,9 @@ void minute_calculator::push_quote_h( boost::shared_ptr<quote> quot )
 		}
 
 	}
+}
+
+void minute_calculator::tell_data( shared_map& stat)
+{
+	stat = extr;
 }

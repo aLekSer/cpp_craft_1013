@@ -37,7 +37,7 @@ public:
 		std::vector< std::string > messages_;
 
 	public:
-		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj* co);
+		explicit udp_listener( boost::asio::io_service& io_service, const std::string& multicast_address, unsigned short port, callable_obj* co = NULL);
 		~udp_listener();
 		const std::vector< std::string > messages() const;
 		boost::shared_ptr<std::string> messages_pop()

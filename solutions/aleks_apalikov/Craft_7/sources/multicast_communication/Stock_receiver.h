@@ -86,12 +86,13 @@ class stock_receiver
 	void init_listeners( bool quotes);
 	config c;
 	bool deleted[2];
+	bool callback_written;
 public:
 	int wait_some_data();
 	void add_callback(worker* work, minute_data_call* mc);
 	void write_buf( boost::shared_ptr<string> str, bool quotes );
 	void service_run(shared_service serv);
-	stock_receiver(char * str = "");
+	stock_receiver(char * str = "", bool test = false);
 	void stop();
 	~stock_receiver(void);
 	void del_listeners(bool quotes);
