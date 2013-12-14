@@ -1,13 +1,15 @@
 #include "Stock_receiver.h"
 
-stock_receiver::stock_receiver(char * str): c(config (data_path + string("config.ini"))),
+stock_receiver::stock_receiver(char * str, bool test): c(config (data_path + string("config.ini"))),
 	processor ( market_data_processor(str) )
 {
 	c.get_trades();
 	c.trade_threads();
 	c.quote_threads();
-	trad_co = new callable_obj(this, false);
-	quot_co = new callable_obj(this, true);
+	callback_written = false;
+	stock_receiver * sr = test? NULL : this;
+	trad_co = test? NULL : new callable_obj(sr, false);
+	quot_co = test ? NULL : new callable_obj(sr, true);
 
 	init_services( quote_services, c, true);	
 	init_services(trade_services, c, false);
@@ -87,7 +89,7 @@ int stock_receiver::wait_some_data()
 				str = trade_listeners[i]->messages_pop() ;
 			}
 			message::divide_messages(msgs, str, false);
-			for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
+			for (vector_messages::iterator it = msgs.begin(); callback_written && (it != msgs.end() ); it++)
 			{
 				boost::shared_ptr<trade> sp = boost::static_pointer_cast<trade, message>(*it);
 				(*work)(sp);
@@ -109,7 +111,7 @@ int stock_receiver::wait_some_data()
 				str = quote_listeners[i]->messages_pop();
 			}
 			message::divide_messages(msgs,  str, true);
-			for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
+			for (vector_messages::iterator it = msgs.begin(); callback_written && (it != msgs.end() ); it++)
 			{
 				boost::shared_ptr<quote> sp = boost::static_pointer_cast<quote, message>(*it);
 				(*work)(sp);
@@ -133,7 +135,8 @@ void stock_receiver::service_run(shared_service serv)
 void stock_receiver::stop()
 {
 	vector<shared_service>::iterator it;
-	work->stop();
+	if(callback_written)
+		work->stop();
 	processor.close();
 	for (it = quote_services.begin(); it != quote_services.end(); it++)
 	{
@@ -152,6 +155,7 @@ void stock_receiver::add_callback( worker* w, minute_data_call* mc )
 {
 	work = w;
 	mdc = mc;
+	callback_written = true;
 }
 
 void stock_receiver::del_listeners(bool quotes)
@@ -180,6 +184,8 @@ void stock_receiver::del_listeners(bool quotes)
 
 void stock_receiver::write_buf( boost::shared_ptr<string> str, bool quotes )
 {
+	if(!callback_written)
+		return ;
 	vector_messages msgs;
 	try
 	{

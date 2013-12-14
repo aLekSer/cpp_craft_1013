@@ -56,6 +56,7 @@ class minute_calculator
 	thread_safe_queue<shared_map>* que;
 	void send_data(shared_map); //send to market_data
 public:
+	void tell_data(shared_map&);
 	explicit minute_calculator(thread_safe_queue<shared_map>* q)
 	{
 		que = q;

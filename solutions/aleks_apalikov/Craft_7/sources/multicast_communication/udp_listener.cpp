@@ -71,9 +71,13 @@ void udp_listener::listen_handler_( buffer_type bt, const boost::system::error_c
 	{
 		{
 			boost::mutex::scoped_lock lock( protect_messages_ );
-//			messages_.push_back( std::string( bt->c_str(), bytes_received ) );
-			boost::shared_ptr<std::string> sp(new std::string( bt->c_str(), bytes_received ));
-			(*callback)(sp);
+			if(callback == NULL)
+				messages_.push_back( std::string( bt->c_str(), bytes_received ) );
+			else
+			{
+				boost::shared_ptr<std::string> sp(new std::string( bt->c_str(), bytes_received ));
+				(*callback)(sp);
+			}
 		}
 		register_listen_();
 	}

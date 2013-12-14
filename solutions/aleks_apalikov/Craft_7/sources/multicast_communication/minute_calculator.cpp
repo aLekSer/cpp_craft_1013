@@ -3,7 +3,7 @@
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
 	message::denominator(trad->denom());
-	if(trad->price() < 0 | trad->volume() < 0)
+	if(trad->price() < 0 || trad->volume() < 0)
 	{
 		return;
 	}
@@ -25,7 +25,7 @@ void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
 	message::denominator(quot->bid_denom());
 	message::denominator(quot->offer_denom());
-	if(quot->bid_price() < 0 || quot->offer_price() < 0 || quot->bid_volume() 
+	if(quot->bid_price() < 0 || quot->offer_price() < 0 || quot->bid_volume() < 0
 		|| quot->offer_volume() < 0)
 	{
 		return;
@@ -145,4 +145,9 @@ void minute_calculator::push_quote_h( boost::shared_ptr<quote> quot )
 		}
 
 	}
+}
+
+void minute_calculator::tell_data( shared_map& stat)
+{
+	stat = extr;
 }

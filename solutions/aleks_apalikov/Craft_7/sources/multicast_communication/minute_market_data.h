@@ -84,6 +84,12 @@ public:
 		}
 		return 0;
 	}
+inline void write_posit_double(ofstream & fs, double d)
+	{
+		if(d < 0)
+			d = 0;
+		write_binary(fs, d);
+	}
 	void write(shared_extremums e, ofstream& fs )
 	{
 		if(!fs.is_open())
@@ -93,10 +99,10 @@ public:
 //		write_binary(fs, *e);
 		write_binary(fs, e->minute);
 		write_binary(fs, e->stock_name, 16);
-		write_binary(fs, e->open_price);
-		write_binary(fs, e->high_price);
-		write_binary(fs, e->low_price);
-		write_binary(fs, e->close_price);
+		write_posit_double(fs, e->open_price);
+		write_posit_double(fs, e->high_price);
+		write_posit_double(fs, e->low_price);
+		write_posit_double(fs, e->close_price);
 		write_binary(fs, e->volume);
 		write_binary(fs, e->bid);
 		write_binary(fs, e->ask);

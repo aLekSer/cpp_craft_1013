@@ -14,7 +14,7 @@ typedef vector<endpoint>::iterator e_iter;
 void async_udp::receiver_test()
 {
 	{
-		stock_receiver sr("results2.txt");
+		stock_receiver sr("results2.txt", true);
 		boost::asio::io_service service;
 		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.0" ), 61000 ); 
 		boost::asio::ip::udp::socket socket( service, endp.protocol() );
@@ -34,7 +34,7 @@ void async_udp::receiver_test()
 	}
 	{
 		cout << data_path << endl;
-		stock_receiver sr;
+		stock_receiver sr("", true);
 		boost::asio::io_service service;
 		boost::asio::ip::udp::endpoint endp( boost::asio::ip::address::from_string( "233.200.79.128" ), 62128 ); 
 		boost::asio::ip::udp::socket socket( service, endp.protocol() );
