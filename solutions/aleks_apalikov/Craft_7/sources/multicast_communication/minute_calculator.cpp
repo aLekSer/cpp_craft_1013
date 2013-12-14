@@ -2,6 +2,11 @@
 
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
+	message::denominator(trad->denom());
+	if(trad->price() < 0 | trad->volume() < 0)
+	{
+		return;
+	}
 	boost::mutex::scoped_lock lock(calc_mtx);
 	push_trade_h(trad);
 	if(trad->minute() > minute)
@@ -18,6 +23,13 @@ void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 
 void minute_calculator::push_quote( boost::shared_ptr<quote> quot )
 {
+	message::denominator(quot->bid_denom());
+	message::denominator(quot->offer_denom());
+	if(quot->bid_price() < 0 || quot->offer_price() < 0 || quot->bid_volume() 
+		|| quot->offer_volume() < 0)
+	{
+		return;
+	}
 	boost::mutex::scoped_lock lock(calc_mtx);
 	push_quote_h(quot);
 	return;

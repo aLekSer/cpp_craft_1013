@@ -52,7 +52,8 @@ message* message::read()
 	{
 		throw std::logic_error("Read only one time");
 	}
-	try{
+	try
+	{
 		if(read_header() == -1) 
 		{
 			categ = end_reached;

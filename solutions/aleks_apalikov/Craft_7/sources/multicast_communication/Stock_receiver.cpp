@@ -1,6 +1,5 @@
 #include "Stock_receiver.h"
 
-
 stock_receiver::stock_receiver(char * str): c(config (data_path + string("config.ini"))),
 	processor ( market_data_processor(str) )
 {
@@ -182,8 +181,14 @@ void stock_receiver::del_listeners(bool quotes)
 void stock_receiver::write_buf( boost::shared_ptr<string> str, bool quotes )
 {
 	vector_messages msgs;
-	 str;
-	message::divide_messages(msgs, str, false);
+	try
+	{
+		message::divide_messages(msgs, str, quotes);
+	}
+	catch (const exception & e)
+	{
+		cout << "Exception while udp buffer reading"<< e.what() << endl;
+	}
 	for (vector_messages::iterator it = msgs.begin(); it != msgs.end(); it++)
 	{
 		if(!quotes)

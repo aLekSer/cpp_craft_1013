@@ -12,6 +12,7 @@
 #include "market_data_processor.h"
 #include "minute_market_data.h"
 
+
 using namespace std;
 using namespace async_udp;
 
@@ -27,12 +28,26 @@ public:
 	}
 	void operator() (boost::shared_ptr<trade> t)
 	{
-		minc->push_trade(t);
+		try
+		{
+			minc->push_trade(t);
+		}
+		catch (const exception& e)
+		{
+			cout << "Minute_calculator get wrong trade input " << e.what() << endl;
+		}
 
 	}
 	void operator() (boost::shared_ptr<quote> q)
 	{
-		minc->push_quote(q);
+		try
+		{
+			minc->push_quote(q);
+		}
+		catch (const exception& e)
+		{
+			cout << "Minute_calculator get wrong quote input " << e.what() << endl;
+		}
 	}
 	void stop()
 	{

@@ -41,8 +41,6 @@ struct times {
 		ptm = gmtime(&tt);
 		ret_val = ((ptm->tm_year) * 372 + ptm->tm_mon * 31 + ptm->tm_mday);
 		ret_val = ret_val * 24 * 60 + (hour_minute >> 8) * 60 + (hour_minute & 0xFF);
-		char debug_time[50]; //TODO del before pull request
-		strftime(debug_time, 50, "%d-%m-%Y", ptm);
 		return ret_val;
 	}
 };
