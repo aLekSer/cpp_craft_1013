@@ -25,10 +25,18 @@ void async_udp::receiver_test()
 			<<"\x1f" << "LDEO A  003759122N:J_432ALJR  F00124900003 D00125100001 02" << "\x03";
 		string str = ss.str();
 		socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
+		int i = 0;
 		while( sr.wait_some_data() == -1 )
 		{
 			socket.send_to( boost::asio::buffer( str.c_str(), str.size() ), endp );
 			boost::this_thread::sleep_for( boost::chrono::nanoseconds( 100 ) );
+			i++;
+			if(i = 1000000)
+			{
+				cout<< "error in stock_receiver test, check quote config.ini " << endl;
+				BOOST_CHECK_EQUAL(sr.wait_some_data(), 0);
+				break;
+			}
 		}
 		sr.stop();
 	}
