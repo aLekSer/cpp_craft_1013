@@ -1,5 +1,7 @@
 #include "minute_calculator.h"
 
+#include <boost/algorithm/string.hpp>
+
 void minute_calculator::push_trade( boost::shared_ptr<trade> trad )
 {
 	message::denominator(trad->denom());
@@ -65,7 +67,9 @@ void minute_calculator::push_trade_h( boost::shared_ptr<trade> trad )
 	if(trad->minute() == minute)
 	{
 		char st [sn_size];
-		strcpy(st, trad->security_symbol().c_str());
+		string sec_sym = trad->security_symbol();
+		boost::trim (sec_sym);
+		strcpy(st, sec_sym.c_str());
 
 		map_extr::iterator i = extr->find(string (st));
 		if(i != extr->end())
@@ -123,7 +127,9 @@ void minute_calculator::push_quote_h( boost::shared_ptr<quote> quot )
 	{
 		char st [sn_size];
 		minute = quot->get_time();
-		strcpy(st, quot->security_symbol().c_str());
+		string sec_sym = quot->security_symbol();
+		boost::trim (sec_sym);
+		strcpy(st, sec_sym.c_str());
 		map_extr::iterator i = extr->find(string (st));
 		if(i != extr->end())
 		{
