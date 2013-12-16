@@ -7,7 +7,7 @@ void minute_calc::calculate()
 {
 	{
 		stringstream ss;
-		ss <<"EBAO A  000146234N:3]004ACN             0     000 F  1  D000000779000000000100DD 0""\x03"
+		ss <<"EBAO A  000146234N:3]004ACN             0     000 F  1  D000020000000000000100DD 0""\x03"
 			<< "EIAO A  000146235T:3]008ACN@0100I00002000DD""\x03"
 			<< "EIAO A  000146237T:3]010ACN@0100I00001000DD""\x03"
 			<< "EBAO A  000146238D:3]010ABEV         T  0     000@   0  C000000007625000000100DD 0""\x03"
@@ -40,7 +40,7 @@ void minute_calc::calculate()
 			{
 				shared_map sh_map;
 				mc.tell_data(sh_map);
-				BOOST_CHECK_EQUAL((*sh_map)["ACN"]->volume, 200.0);
+				BOOST_CHECK_EQUAL((*sh_map)["ACN"]->volume, 300.0);
 				BOOST_CHECK_EQUAL((*sh_map)["ACN"]->open_price, 2000.0);
 				BOOST_CHECK_EQUAL((*sh_map)["ACN"]->close_price, 1000.0);
 				BOOST_CHECK_EQUAL((*sh_map)["ACN"]->high_price, 2000.0);
